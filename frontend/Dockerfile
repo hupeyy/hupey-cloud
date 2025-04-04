@@ -17,4 +17,8 @@ COPY --from=build /app/package.json ./package.json
 COPY --from=build /app/node_modules ./node_modules
 EXPOSE 3000
 
+<<<<<<< HEAD
 CMD ["node", "build"]
+=======
+CMD ["node", "build"]
+>>>>>>> 4482a136c46b0e3408563ec2e304f57ff9380313
