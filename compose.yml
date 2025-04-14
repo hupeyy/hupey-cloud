@@ -14,9 +14,12 @@ services:
     environment:
       EULA: "TRUE"
     volumes:
-<<<<<<< HEAD
-      - ./data:/data
-=======
-      - ./data:/data
-    
->>>>>>> 4482a136c46b0e3408563ec2e304f57ff9380313
+      - ./data:/mc-data
+  
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflared
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    environment:
+      - TUNNEL_TOKEN=${TUNNEL_TOKEN}
