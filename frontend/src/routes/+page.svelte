@@ -1,7 +1,10 @@
 <script>
-
+  import { Canvas } from '@threlte/core'
+  import Scene from '$lib/components/Scene.svelte'
 </script>
 
-<div>
-  hupey.cloud
+<div class="w-full h-screen">
+  <Canvas>
+    <Scene />
+  </Canvas>
 </div>

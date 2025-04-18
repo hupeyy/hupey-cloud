@@ -4,6 +4,8 @@ services:
     ports:
       - "8080:3000"
     restart: unless-stopped
+    networks:
+      - hupey_net
 
   mc:
     image: itzg/minecraft-server
@@ -14,12 +16,24 @@ services:
     environment:
       EULA: "TRUE"
     volumes:
-      - ./data:/mc-data
+      - ./mc-data:/data
+    networks:
+      - hupey_net 
   
   cloudflared:
     image: cloudflare/cloudflared:latest
     container_name: cloudflared
     restart: unless-stopped
-    command: tunnel --no-autoupdate run
+    command: tunnel run
     environment:
       - TUNNEL_TOKEN=${TUNNEL_TOKEN}
+    networks:
+      - hupey_net
+    depends_on:
+      - frontend
+      - mc
+
+networks:
+  hupey_net:
+    driver: bridge
+
