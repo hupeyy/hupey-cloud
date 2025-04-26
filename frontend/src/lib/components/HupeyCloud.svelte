@@ -8,7 +8,8 @@
   import * as THREE from 'three'
   import { onMount } from 'svelte'; 
 
-  const hupeyCloud = useGltf('/models/hupey-cloud.gltf', {
+  const modelURL = '/models/hupey-cloud.gltf'
+  const hupeyCloud = useGltf(modelURL, {
     onError: (error) => {
       console.error('Failed to load GLTF model:', error);
     }
@@ -27,7 +28,7 @@
 </T.PerspectiveCamera>
 
 <T.DirectionalLight
-  position={[10, 5, 0]}
+  position={[10, 5, 3]}
   castShadow
   oncreate={(ref) => {
     ref.lookAt(0, 0, 0)
@@ -36,13 +37,13 @@
 />
 
 <T.AmbientLight
-  intensity={1}
+  intensity={3}
 />
 
 <!-- GLTF Model -->
 {#if $hupeyCloud}
   <GLTF 
-    url="/models/hupey-cloud.gltf"
+    url={modelURL}
     position={[0, 0, 0]}
     rotation.y={Math.PI} 
   />
