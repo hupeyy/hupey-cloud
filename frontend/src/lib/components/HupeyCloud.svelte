@@ -37,7 +37,7 @@
 />
 
 <T.AmbientLight
-  intensity={3}
+  intensity={2}
 />
 
 <!-- GLTF Model -->
@@ -46,5 +46,6 @@
     url={modelURL}
     position={[0, 0, 0]}
     rotation.y={Math.PI} 
+    scale={1.5}
   />
 {/if}

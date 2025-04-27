@@ -6,7 +6,7 @@ services:
     restart: unless-stopped
     networks:
       - hupey_net
-
+    
   mc:
     image: itzg/minecraft-server
     tty: true
