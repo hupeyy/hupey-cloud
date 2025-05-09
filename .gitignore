@@ -1,2 +1,4 @@
 mc-data
+certbot
+nginx
 .env
