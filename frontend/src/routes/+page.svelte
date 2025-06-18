@@ -1,9 +1,10 @@
 <script>
   import { Canvas } from '@threlte/core'
   import Scene from '$lib/components/Scene.svelte'
+  import HupeyCloud from '$lib/components/HupeyCloud.svelte'
 </script>
 
-<div class="flex flex-col h-screen ">
+<div class="flex flex-col h-screen">
     <div class="flex h-[65vh] bg-[var(--blue)]">
       <Canvas>
         <Scene />

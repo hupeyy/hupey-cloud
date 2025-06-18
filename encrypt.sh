@@ -2,24 +2,26 @@
 set -e
 
 # Create directories for certbot with proper permissions
-sudo mkdir -p ./certbot/www ./certbot/conf
-sudo chown -R $(whoami) ./certbot
+mkdir -p ./certbot/www ./certbot/conf
+chmod -R 755 ./certbot
 
-# Create dummy certificates
-mkdir -p ./certbot/conf/live/hupey.cloud
-openssl req -x509 -nodes -newkey rsa:4096 -days 1 \
-  -keyout ./certbot/conf/live/hupey.cloud/privkey.pem \
-  -out ./certbot/conf/live/hupey.cloud/fullchain.pem \
-  -subj '/CN=localhost'
+# Create dummy certificates for initial startup
+if [ ! -f "./certbot/conf/live/hupey.cloud/fullchain.pem" ]; then
+  mkdir -p ./certbot/conf/live/hupey.cloud
+  openssl req -x509 -nodes -newkey rsa:4096 -days 1 \
+    -keyout ./certbot/conf/live/hupey.cloud/privkey.pem \
+    -out ./certbot/conf/live/hupey.cloud/fullchain.pem \
+    -subj '/CN=localhost'
 
-# Ensure proper permissions for the certificates
-chmod 755 ./certbot/conf/live
-chmod 755 ./certbot/conf/live/hupey.cloud
-chmod 644 ./certbot/conf/live/hupey.cloud/fullchain.pem
-chmod 600 ./certbot/conf/live/hupey.cloud/privkey.pem
+  # Ensure proper permissions for the certificates
+  chmod 755 ./certbot/conf/live
+  chmod 755 ./certbot/conf/live/hupey.cloud
+  chmod 644 ./certbot/conf/live/hupey.cloud/fullchain.pem
+  chmod 600 ./certbot/conf/live/hupey.cloud/privkey.pem
+fi
 
 # Start nginx
-docker compose up -d nginx || true
+docker compose up -d nginx
 
 # Get the real certificates (DNS challenge)
 echo "You will now need to create a DNS TXT record as instructed"
@@ -41,4 +43,3 @@ if [ -f "./certbot/conf/live/hupey.cloud/fullchain.pem" ] && [ -f "./certbot/con
 else
   echo "Failed to obtain certificates. Check the error messages above."
 fi
-

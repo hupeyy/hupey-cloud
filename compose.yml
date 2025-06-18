@@ -45,3 +45,4 @@ services:
 networks:
   hupey_net:
     driver: bridge
+    name: hupey_network
