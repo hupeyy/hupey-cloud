@@ -9,7 +9,7 @@
   import { onMount } from 'svelte'; 
 
   const modelURL = '/models/hupey-avatar.gltf'
-  const hupeyCloud = useGltf(modelURL, {
+  const hupeyAvatar = useGltf(modelURL, {
     onError: (error) => {
       console.error('Failed to load GLTF model:', error);
     }
@@ -41,11 +41,11 @@
 />
 
 <!-- GLTF Model -->
-{#if $hupeyCloud}
+{#if $hupeyAvatar}
   <GLTF 
     url={modelURL}
-    position={[0, -1, 0]}
+    position={[0, -2, 0]}
     rotation.y={Math.PI} 
-    scale={1.5}
+    scale={2}
   />
 {/if}

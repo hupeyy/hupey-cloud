@@ -19,7 +19,7 @@
 
 <T.PerspectiveCamera
   makeDefault
-  position={[10, 10, 10]}
+  position={[8, 8, 8]}
   oncreate={(ref) => {
     ref.lookAt(0, 1, 0)
   }}
@@ -46,6 +46,6 @@
     url={modelURL}
     position={[0, 0, 0]}
     rotation.y={Math.PI} 
-    scale={1.5}
+    scale={2}
   />
 {/if}

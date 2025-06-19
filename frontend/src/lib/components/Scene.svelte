@@ -9,10 +9,8 @@
     object = "cloud" // Default to "cloud" if not provided
   } = $props();
 
-  const style = window.getComputedStyle(document.body); 
-  const bgColor = style.getPropertyValue('--blue');
   const { scene } = useThrelte();
-  scene.background = new Color(bgColor);
+  scene.background = null;
 </script>
 
 
