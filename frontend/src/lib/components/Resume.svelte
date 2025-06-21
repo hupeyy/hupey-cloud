@@ -40,7 +40,7 @@
         🚀 Software Engineer
       </p>
       <div class="grid grid-cols-2 gap-3 max-w-md mx-auto text-sm sm:text-base">
-        <a href="mailto:alexanderhuper@gmail.com" 
+        <a href="mailto:alexanderhuper@gmail.com" target="_blank"
            class="flex items-center justify-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg p-3 hover:bg-white/20 transition-all duration-300 hover:scale-105">
           <span class="text-lg">📧</span>
           <span class="hidden sm:inline">Email</span>
@@ -54,6 +54,11 @@
            class="flex items-center justify-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg p-3 hover:bg-white/20 transition-all duration-300 hover:scale-105">
           <span class="text-lg">💼</span>
           <span class="hidden sm:inline">LinkedIn</span>
+        </a>
+        <a href="resumes/SWE/WilhelmAHuper_Resume.pdf" target="_blank"
+           class="flex items-center justify-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg p-3 hover:bg-white/20 transition-all duration-300 hover:scale-105">
+          <span class="text-lg">📄</span>
+          <span class="hidden sm:inline">Resume</span>
         </a>
       </div>
     </div>
@@ -99,7 +104,7 @@
           </p>
           <div class="flex flex-wrap gap-2">
             {#each ['Python', 'C++/C#', 'Go', 'Java', 'JavaScript', 'TypeScript', 'SQL', 'HTML/CSS'] as skill}
-              <span class="bg-white/20 px-3 py-1 rounded-full text-xs sm:text-sm hover:bg-white/30 transition-all duration-300 cursor-pointer hover:scale-105">
+              <span class="bg-white/20 px-3 py-1 rounded-full text-xs sm:text-sm hover:bg-white/30 transition-all duration-300 cursor-default hover:scale-105">
                 {skill}
               </span>
             {/each}
@@ -112,7 +117,7 @@
           </p>
           <div class="flex flex-wrap gap-2">
             {#each ['Svelte', 'React', 'Astro', 'Next.js', 'Three.js', 'Tailwind CSS', 'ShadcnUI', 'HTMX'] as skill}
-              <span class="bg-gradient-to-r from-purple-500/20 to-pink-500/20 px-3 py-1 rounded-full text-xs sm:text-sm hover:from-purple-500/30 hover:to-pink-500/30 transition-all duration-300 cursor-pointer hover:scale-105">
+              <span class="bg-gradient-to-r from-purple-500/20 to-pink-500/20 px-3 py-1 rounded-full text-xs sm:text-sm hover:from-purple-500/30 hover:to-pink-500/30 transition-all cursor-default duration-300  hover:scale-105">
                 {skill}
               </span>
             {/each}
@@ -125,7 +130,7 @@
           </p>
           <div class="flex flex-wrap gap-2">
             {#each ['Firebase', 'PostgreSQL', 'MySQL', 'MongoDB', 'MariaDB', 'Docker', 'AWS', 'Selenium', 'Git', 'Linux', 'Figma', 'Miro', 'Canva'] as skill}
-              <span class="bg-blue-500/20 px-3 py-1 rounded-full text-xs sm:text-sm hover:bg-blue-500/30 transition-all duration-300 cursor-pointer hover:scale-105">
+              <span class="bg-blue-500/20 px-3 py-1 rounded-full text-xs sm:text-sm hover:bg-blue-500/30 transition-all duration-300 cursor-default hover:scale-105">
                 {skill}
               </span>
             {/each}

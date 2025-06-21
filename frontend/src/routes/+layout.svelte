@@ -1,10 +1,10 @@
 <script>
 	import '../app.css';
-	import Navbar from '$lib/components/Navbar.svelte';
+	import Hamburger from '$lib/components/Hamburger.svelte';
 
 	let { children } = $props();
 </script>
 
-<Navbar />
+<Hamburger />
 {@render children()}
 
