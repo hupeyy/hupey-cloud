@@ -11,8 +11,13 @@
   } = $props();
 </script>
 
-<div class="flex" class:flex-row={!reverse} class:flex-row-reverse={reverse}>
-  <div class="flex flex-col w-1/2 p-6">
+<div class="flex flex-col items-center justify-center">
+  <div>
+    <div>
+      <Canvas class="w-full h-64">
+        <Scene modelURL={modelURL} />
+      </Canvas>
+    </div>
     <h2 class="text-2xl font-bold mb-4">{name}</h2>
     <p class="text-md mb-4">{description}</p>
     {#if projectURL}
@@ -20,10 +25,5 @@
         View Project
       </a>
     {/if}
-  </div>
-  <div>
-    <Canvas>
-      <Scene />
-    </Canvas>
   </div>
 </div>

@@ -2,9 +2,10 @@
   import { Canvas } from '@threlte/core';
   import Scene from '$lib/components/Scene.svelte';
   import Project from '$lib/components/Project.svelte';
+  import Resume from '$lib/components/Resume.svelte';
 </script>
 
-<div class="flex flex-col h-screen pt-20 bg-[var(--blue)]">
+<div class="flex flex-col h-screen pt-30 bg-[var(--blue)]">
   <div class="flex flex-col h-full">
     <div class="flex">
       <Canvas>
@@ -29,5 +30,8 @@
         <Project name="Yet Another Project" description="Description of yet another project." modelURL="/models/yet-another-project.gltf" projectURL="https://example.com" />
       </div>
     </div>
+  </div>
+  <div>
+    <Resume />
   </div>
 </div>

@@ -14,7 +14,13 @@
       console.error('Failed to load GLTF model:', error);
     }
   });
-  
+ 
+  let rotation = 0;
+  let positionY = -2;
+  useTask((delta) => {
+    rotation += delta * 0.5; // rotation about the Y-axis
+    positionY = -2 + Math.sin(rotation) * 0.5; // oscillation about the Y-axis
+  });
 </script>
 
 <T.PerspectiveCamera
@@ -45,7 +51,8 @@
   <GLTF 
     url={modelURL}
     position={[0, -2, 0]}
-    rotation.y={Math.PI} 
+    rotation.y={rotation}
+    position.y={positionY}
     scale={2}
   />
 {/if}
