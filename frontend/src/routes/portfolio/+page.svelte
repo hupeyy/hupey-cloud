@@ -1,46 +1,50 @@
 <script>
   import { Canvas } from '@threlte/core';
-  import Avatar from '$lib/components/Avatar.svelte';
   import Project from '$lib/components/Project.svelte';
   import Resume from '$lib/components/Resume.svelte';
+	import Model from '$lib/components/Model.svelte';
+	import { scale } from 'svelte/transition';
 
 
   const projects = [
     {
       name: 'hupey.cloud',
-      description: 'Built a private cloud server using Raspberry Pi 5 for hosting applications and secure file storage. Configured Nginx with Cloudflare tunnels and Docker containerization.',
+      description: 'Built a private cloud server using Raspberry Pi 5 for hosting applications (like this one!) and secure file storage.',
       modelURL: '/models/hupey-cloud.gltf',
-      projectURL: 'https://hupey.cloud',
+      rotationY: Math.PI
     },
     {
       name: 'ColorCoding',
-      description: 'Led a 4-person Svelte and Firebase application development team using Agile Scrum. Created database schema and developer tools with code review practices.',
-      modelURL: '',
-      projectURL: '#',
+      description: 'A programming competition platform designed to enhance coding skills through gamified challenges for ColorStack UF students. Developed using SvelteKit and Go, featuring real-time code execution and leaderboard.',
+      modelURL: '/models/computer/scene.gltf',
+      projectURL: 'https://github.com/hupeyy/ColorCoding',
+      scale: 1/24
     },
     {
       name: 'Connect 4 AI',
-      description: 'Engineered a full-stack Connect 4 game with AI opponent using Svelte frontend and Go backend. Implemented alpha-beta pruning algorithm for strategic gameplay.',
-      modelURL: '/models/connect4-ai.gltf',
-      projectURL: '#',
+      description: 'Classic Connect 4 game with AI opponent using Svelte frontend and Go backend. Implemented alpha-beta pruning algorithm for strategic gameplay.',
+      modelURL: '/models/connect_4/scene.gltf',
+      projectURL: 'https://github.com/hupeyy/AI-Connect4',
+      scale: 1/2
     },
     {
       name: 'AIDE',
-      description: 'Designed a tree-based UI for large language models to enhance dialogue navigation and context management. Integrated SGLang for improved performance.',
-      modelURL: '',
-      projectURL: '#',
+      description: 'A tree-based UI for large language models to enhance dialogue navigation and context management. Integrated SGLang for improved performance.',
+      modelURL: '/models/robot/scene.gltf',
+      projectURL: 'https://aide.zy-j.com',
+      scale: 1/32
     },
     {
       name: 'ColorStack UF Website',
-      description: 'Led development of an interactive About page with LinkedIn integration and responsive design. Collaborated with design team for pixel-perfect implementation.',
+      description: 'Official website for ColorStack UF, a community for underrepresented students in tech. Developed using SvelteKit and Tailwind CSS.',
       modelURL: '',
-      projectURL: '#',
+      projectURL: 'https://uf.colorstack.org',
     },
     {
       name: 'Blockchain Coin Alert System',
-      description: 'Developed a blockchain monitoring system for tracking cryptocurrency across multiple chains. Engineered caching system supporting Ethereum, Base, and Solana.',
-      modelURL: '',
-      projectURL: '#',
+      description: 'A blockchain monitoring system for tracking cryptocurrency across multiple chains. Engineered caching system supporting Ethereum, Base, and Solana.',
+      modelURL: '/models/crypto/scene.gltf',
+      scale: 1/128,
     }
   ];
   
@@ -51,7 +55,14 @@
   <div class="flex-shrink-0">
     <div class="flex h-48 sm:h-64 md:h-80 lg:h-96 xl:h-[28rem]">
       <Canvas>
-        <Avatar />
+        <Model
+          scale={2}
+          position={[0, -2, 0]}
+          rotationY={0}
+          modelURL="/models/hupey-avatar.gltf"
+          oscillator={true}
+          rotator={true}
+        />
       </Canvas>
     </div>
   </div>
@@ -78,6 +89,8 @@
             description={project.description}
             modelURL={project.modelURL}
             projectURL={project.projectURL}
+            scale={project.scale}
+            rotationY={project.rotationY}
           />
         {/each}
       </div>

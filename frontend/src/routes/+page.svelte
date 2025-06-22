@@ -1,6 +1,7 @@
 <script>
   import { Canvas } from '@threlte/core'
   import HupeyCloud from '$lib/components/HupeyCloud.svelte'
+	import Model from '$lib/components/Model.svelte';
 </script>
 
 <div class="flex flex-col min-h-screen pt-12 sm:pt-16 md:pt-20 lg:pt-24 bg-[var(--blue)]">
@@ -8,7 +9,12 @@
       <div class="flex-shrink-0">
         <div class="flex h-48 sm:h-64 md:h-80 lg:h-96 xl:h-[28rem]">
           <Canvas>
-            <HupeyCloud />
+            <Model
+              scale={2}
+              position={[0, 0, 0]}
+              rotationY={-2}
+              modelURL="/models/hupey-cloud.gltf"
+            /> 
           </Canvas>
         </div>
     </div> 

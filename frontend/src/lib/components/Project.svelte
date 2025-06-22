@@ -8,6 +8,8 @@
     fullDescription = "",
     modelURL = "/models/hupey-cloud.gltf",
     projectURL = "",
+    scale = 1.5,
+    rotationY = 0
   } = $props();
 
   let expanded = $state(false);
@@ -31,9 +33,10 @@
   <div class="w-full h-32 sm:h-40 md:h-48 lg:h-56 mb-4 rounded-lg overflow-hidden">
     <Canvas class="w-full h-full">
       <Model 
-        scale={1.5} 
+        scale={scale} 
         position={[0, -2, 0]} 
-        rotationY={0}
+        rotationY={rotationY}
+        modelURL={modelURL}
       />
     </Canvas>
   </div>
@@ -65,6 +68,7 @@
       <div class="mt-auto">
         <a 
           href={projectURL} 
+          target="_blank"
           class="inline-block w-full sm:w-auto px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg text-center text-sm sm:text-base font-medium transition-colors duration-200 border border-white/20 hover:border-white/40"
         >
           View Project

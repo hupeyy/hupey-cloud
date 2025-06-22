@@ -9,7 +9,10 @@
   let {
     scale = 2,
     position = [0, -2, 0],
-    modelURL = '/models/hupey-cloud.gltf'
+    modelURL = '/models/hupey-cloud.gltf',
+    rotationY = 0,
+    rotator = false,
+    oscillator = false
   } = $props();
 
   let rotation = $state(0);
@@ -22,8 +25,12 @@
   });
 
   useTask((delta) => {
-    rotation += delta * 0.5;
-    positionY = -2 + Math.sin(rotation) * 0.5;
+    if (rotator) {
+      rotation += delta * 0.5;
+    }
+    if (oscillator) {
+      positionY = -2 + Math.sin(rotation) * 0.5;
+    }
   });
 </script>
 
@@ -53,7 +60,7 @@
 {#if $model}
   <T is={$model.scene}
     position={[position[0], positionY, position[2]]}
-    rotation={[0, rotation, 0]}
+    rotation={[0, rotator ? rotation : rotationY, 0]}
     scale={scale}
   />
 {/if}
