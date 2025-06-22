@@ -22,7 +22,7 @@
 <!-- Header with Hamburger Button -->
 <div class="fixed flex flex-row-reverse w-full h-20 bg-transparent top-0 z-50 py-6 px-8">
   <Button 
-    variant="secondary"
+    variant="cloud"
     onclick={toggleMenu}
     class="relative z-50"
     aria-label="Toggle navigation menu"
