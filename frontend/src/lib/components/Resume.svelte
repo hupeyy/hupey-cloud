@@ -47,12 +47,12 @@
         </a>
         <a href="https://github.com/hupeyy" target="_blank"
            class="flex items-center justify-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg p-3 hover:bg-white/20 transition-all duration-300 hover:scale-105">
-          <span class="text-lg">🔗</span>
+          <image src="images/github-mark/github-mark-white.png" alt="GitHub Logo" class="w-6 h-6" />
           <span class="hidden sm:inline">GitHub</span>
         </a>
         <a href="https://linkedin.com/in/alex-huper" target="_blank"
            class="flex items-center justify-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg p-3 hover:bg-white/20 transition-all duration-300 hover:scale-105">
-          <span class="text-lg">💼</span>
+          <image src="images/in-logo/InBug-White.png" alt="LinkedIn Logo" class="w-6 h-6" />
           <span class="hidden sm:inline">LinkedIn</span>
         </a>
         <a href="resumes/SWE/WilhelmAHuper_Resume.pdf" target="_blank"
