@@ -1,22 +1,22 @@
 <script>
   import { T, useTask } from '@threlte/core'
-  import { 
-    OrbitControls,
-    useGltf
-  } from '@threlte/extras'
+  import { useGltf } from '@threlte/extras'
   import * as THREE from 'three'
 
   let {
     scale = 2,
     position = [0, -2, 0],
+    cameraPosition = [0, 0, 8],
     modelURL = '/models/hupey-cloud.gltf',
     rotationY = 0,
     rotator = false,
     oscillator = false
   } = $props();
 
-  let rotation = $state(0);
-  let positionY = $state(-2);
+  let rotationAnimation = $state(rotationY); // Initialize with the starting rotation
+  let oscillatorTime = $state(0);
+  let positionY = $state(position[1]);
+  let wasRotating = $state(false);
 
   const model = useGltf(modelURL, {
     onError: (error) => {
@@ -25,18 +25,34 @@
   });
 
   useTask((delta) => {
-    if (rotator) {
-      rotation += delta * 0.5;
+    // When rotator starts, initialize animation from current rotation
+    if (rotator && !wasRotating) {
+      rotationAnimation = rotationY;
+      wasRotating = true;
     }
+    
+    // When rotator stops, reset the flag
+    if (!rotator && wasRotating) {
+      wasRotating = false;
+    }
+
+    if (rotator) {
+      rotationAnimation += delta * 0.5;
+    }
+    
     if (oscillator) {
-      positionY = -2 + Math.sin(rotation) * 0.5;
+      oscillatorTime += delta;
+      positionY = position[1] + Math.sin(oscillatorTime) * 0.5;
     }
   });
+
+  // Calculate final rotation Y value
+  const finalRotationY = $derived(rotator ? rotationAnimation : rotationY);
 </script>
 
 <T.PerspectiveCamera
   makeDefault
-  position={[0, 0, 8]}
+  position={cameraPosition}
   oncreate={(ref) => {
     ref.lookAt(0, 0, 0)
   }}
@@ -59,8 +75,8 @@
 <!-- GLTF Model -->
 {#if $model}
   <T is={$model.scene}
-    position={[position[0], positionY, position[2]]}
-    rotation={[0, rotator ? rotation : rotationY, 0]}
+    position={[position[0], oscillator ? positionY : position[1], position[2]]}
+    rotation={[0, finalRotationY, 0]}
     scale={scale}
   />
 {/if}

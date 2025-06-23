@@ -18,7 +18,8 @@
       description: 'A programming competition platform designed to enhance coding skills through gamified challenges for ColorStack UF students. Developed using SvelteKit and Go, featuring real-time code execution and leaderboard.',
       modelURL: '/models/computer/scene.gltf',
       projectURL: 'https://github.com/hupeyy/ColorCoding',
-      scale: 1/24
+      position: [0, -1, 0],
+      scale: 1/20
     },
     {
       name: 'Connect 4 AI',
@@ -32,19 +33,23 @@
       description: 'A tree-based UI for large language models to enhance dialogue navigation and context management. Integrated SGLang for improved performance.',
       modelURL: '/models/robot/scene.gltf',
       projectURL: 'https://aide.zy-j.com',
+      position: [0, 0, 0],
       scale: 1/32
     },
     {
       name: 'ColorStack UF Website',
       description: 'Official website for ColorStack UF, a community for underrepresented students in tech. Developed using SvelteKit and Tailwind CSS.',
-      modelURL: '',
+      modelURL: '/models/colorstack.gltf',
       projectURL: 'https://uf.colorstack.org',
+      position: [0, -2, 0],
+      scale: 3
     },
     {
       name: 'Blockchain Coin Alert System',
       description: 'A blockchain monitoring system for tracking cryptocurrency across multiple chains. Engineered caching system supporting Ethereum, Base, and Solana.',
       modelURL: '/models/crypto/scene.gltf',
-      scale: 1/128,
+      position: [0, 0, 0],
+      scale: 3 
     }
   ];
   
@@ -91,6 +96,8 @@
             projectURL={project.projectURL}
             scale={project.scale}
             rotationY={project.rotationY}
+            position={project.position}
+            onhover={project.rotator ? true : false}
           />
         {/each}
       </div>

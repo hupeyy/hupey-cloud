@@ -1,6 +1,5 @@
 <script>
   import { Canvas } from '@threlte/core'
-  import HupeyCloud from '$lib/components/HupeyCloud.svelte'
 	import Model from '$lib/components/Model.svelte';
 </script>
 
@@ -11,8 +10,8 @@
           <Canvas>
             <Model
               scale={2}
-              position={[0, 0, 0]}
-              rotationY={-2}
+              cameraPosition={[7, 7, 7]}
+              rotationY={Math.PI}
               modelURL="/models/hupey-cloud.gltf"
             /> 
           </Canvas>

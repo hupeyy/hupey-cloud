@@ -8,13 +8,16 @@
     fullDescription = "",
     modelURL = "/models/hupey-cloud.gltf",
     projectURL = "",
+    position = [0, -2, 0],
     scale = 1.5,
-    rotationY = 0
+    rotationY = 0,
+    rotator = false
   } = $props();
 
   let expanded = $state(false);
   let showExpandButton = $state(false);
   let textElement = $state();
+  let isHovered = $state(false); // Add hover state
 
   // Check if text is truncated
   $effect(() => {
@@ -26,22 +29,37 @@
   function toggleExpanded() {
     expanded = !expanded;
   }
+
+  // Hover handlers
+  function handleMouseEnter() {
+    isHovered = true;
+  }
+
+  function handleMouseLeave() {
+    isHovered = false;
+  }
 </script>
 
-<div class="flex flex-col bg-white/10 backdrop-blur-sm rounded-lg p-4 sm:p-6 h-full transition-transform hover:scale-105 duration-300">
+<div 
+  class="flex flex-col bg-white/10 backdrop-blur-sm rounded-lg p-4 sm:p-6 h-full transition-transform hover:scale-105 duration-300"
+  role="region"
+  onmouseenter={handleMouseEnter}
+  onmouseleave={handleMouseLeave}
+>
   <!-- Canvas Container -->
   <div class="w-full h-32 sm:h-40 md:h-48 lg:h-56 mb-4 rounded-lg overflow-hidden">
     <Canvas class="w-full h-full">
       <Model 
         scale={scale} 
-        position={[0, -2, 0]} 
+        position={position} 
         rotationY={rotationY}
         modelURL={modelURL}
+        rotator={isHovered} 
       />
     </Canvas>
   </div>
   
-  <!-- Content -->
+  <!-- Rest of your component remains the same -->
   <div class="flex flex-col flex-grow">
     <h2 class="text-lg sm:text-xl md:text-2xl font-bold mb-3 sm:mb-4 text-center">{name}</h2>
     
@@ -77,5 +95,3 @@
     {/if}
   </div>
 </div>
-
-
