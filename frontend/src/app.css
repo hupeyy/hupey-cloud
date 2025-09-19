@@ -1,7 +1,5 @@
 @import "tailwindcss";
 
-@import "tw-animate-css";
-
 @custom-variant dark (&:is(.dark *));
 
 :root {
@@ -128,4 +126,13 @@
 
 * {
   font-family: 'jebrains-mono', monospace;
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  .animate-pulse,
+  .animate-spin,
+  .animate-bounce {
+    animation: none;
+  }
 }

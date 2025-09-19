@@ -2,28 +2,32 @@
   import { T, useTask } from '@threlte/core'
   import { useGltf } from '@threlte/extras'
   import * as THREE from 'three'
+  import { onMount } from 'svelte'
 
   let {
     scale = 2,
     position = [0, -2, 0],
     cameraPosition = [0, 0, 8],
     modelURL = '/models/hupey-cloud.gltf',
+    previewImage = null, // PNG preview for mobile
     rotationY = 0,
     rotator = false,
     oscillator = false
   } = $props();
 
-  let rotationAnimation = $state(rotationY); // Initialize with the starting rotation
+  let rotationAnimation = $state(rotationY);
   let oscillatorTime = $state(0);
   let positionY = $state(position[1]);
   let wasRotating = $state(false);
 
+  // Load the model
   const model = useGltf(modelURL, {
     onError: (error) => {
       console.error('Failed to load GLTF model:', error);
     }
   });
 
+  // Animation task
   useTask((delta) => {
     // When rotator starts, initialize animation from current rotation
     if (rotator && !wasRotating) {
@@ -72,8 +76,7 @@
   intensity={2}
 />
 
-<!-- GLTF Model -->
-{#if $model}
+{#if model && $model}
   <T is={$model.scene}
     position={[position[0], oscillator ? positionY : position[1], position[2]]}
     rotation={[0, finalRotationY, 0]}
