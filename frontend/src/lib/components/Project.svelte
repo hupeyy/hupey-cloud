@@ -1,6 +1,7 @@
 <script>
   import { browser } from '$app/environment';
   import { onMount } from 'svelte';
+  import ModelViewer from './ModelViewer.svelte';
   
   let {
     name = "Project Name",
@@ -19,63 +20,14 @@
   let textElement = $state();
   let isHovered = $state(false);
   
-  // Lazy loading states
-  let canvasContainer = $state();
-  let shouldRenderCanvas = $state(false);
   let isIOS = $state(false);
-  let CanvasComponent = $state();
-  let ModelComponent = $state();
 
-  // Device detection and capability assessment
+  // Device detection
   $effect(() => {
     if (browser) {
       isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
     }
   });
-
-  onMount(async () => {
-    // Set up intersection observer for lazy loading
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          loadCanvas();
-          observer.disconnect();
-        }
-      });
-    }, { 
-      threshold: 0.1,
-      rootMargin: '50px' // Start loading slightly before visible
-    });
-
-    if (canvasContainer) {
-      observer.observe(canvasContainer);
-    }
-
-    return () => observer.disconnect();
-  });
-
-  async function loadCanvas() {
-    try {
-      // Dynamic imports for better code splitting
-      const [{ Canvas }, ModelModule] = await Promise.all([
-        import('@threlte/core'),
-        import('$lib/components/Model.svelte')
-      ]);
-      
-      CanvasComponent = Canvas;
-      ModelComponent = ModelModule.default;
-      
-      // Add slight delay on iOS for better performance
-      setTimeout(() => {
-        shouldRenderCanvas = true;
-      }, isIOS ? 300 : 0);
-      
-    } catch (error) {
-      console.error('Failed to load 3D components:', error);
-      // Fallback to static image
-      shouldRenderCanvas = false;
-    }
-  }
 
   // Check if text is truncated
   $effect(() => {
@@ -103,41 +55,17 @@
   onmouseenter={handleMouseEnter}
   onmouseleave={handleMouseLeave}
 >
-  <!-- Canvas Container with Lazy Loading -->
-  <div 
-    bind:this={canvasContainer}
-    class="w-full h-32 sm:h-40 md:h-48 lg:h-56 mb-4 rounded-lg overflow-hidden relative"
-  >
-    {#if shouldRenderCanvas && CanvasComponent && ModelComponent}
-      <CanvasComponent class="w-full h-full">
-        <ModelComponent
-          scale={isIOS ? scale * 0.8 : scale}
-          position={position} 
-          rotationY={rotationY}
-          modelURL={modelURL}
-          rotator={isHovered && !isIOS}
-        />
-      </CanvasComponent>
-    {:else}
-      <!-- Loading state with static fallback -->
-      <div class="w-full h-full bg-gradient-to-br from-white/5 to-white/10 rounded-lg flex items-center justify-center relative overflow-hidden">
-        <!-- Static preview image if available -->
-        <img 
-          src="/images/models/{name.toLowerCase().replace(/\s+/g, '-')}.webp" 
-          alt="{name} preview"
-          class="w-full h-full object-cover"
-          loading="lazy"
-          onerror={(e) => e.target.style.display = 'none'}
-        />        
-        <!-- Fallback loading animation -->
-        <div class="absolute inset-0 flex items-center justify-center">
-          <div class="w-8 h-8 border-2 border-white/30 border-t-white/70 rounded-full animate-spin"></div>
-        </div>
-        
-        <!-- Shimmer effect -->
-        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-pulse"></div>
-      </div>
-    {/if}
+  <!-- Model Viewer with Responsive Preview Images -->
+  <div class="w-full h-32 sm:h-40 md:h-48 lg:h-56 mb-4 rounded-lg overflow-hidden">
+    <ModelViewer
+      {modelURL}
+      scale={isIOS ? scale * 0.8 : scale}
+      {position}
+      {rotationY}
+      rotator={isHovered && !isIOS}
+      alt="{name} 3D model"
+      breakpoint={768}
+    />
   </div>
   
   <!-- Rest of component remains the same -->
