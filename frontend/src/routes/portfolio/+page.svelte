@@ -1,8 +1,9 @@
 <script>
   import { browser } from '$app/environment';
   import { onMount } from 'svelte';
+  import ParsedResume from '$lib/components/ParsedResume.svelte';
   import Resume from '$lib/components/Resume.svelte';
-  
+
   let CanvasComponent = $state();
   let ModelComponent = $state();
   let ProjectComponent = $state();
@@ -159,6 +160,7 @@
 
   <!-- Resume Section -->
   <div class="flex-shrink-0">
-    <Resume />
+    <!-- <Resume /> -->
+    <ParsedResume />
   </div>
 </div>
