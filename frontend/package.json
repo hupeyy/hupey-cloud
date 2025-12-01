@@ -7,6 +7,7 @@
 		"dev": "vite dev",
 		"generate-images": "node scripts/generate-model-images.js",
 		"generate-previews": "node scripts/generate-previews.js",
+		"update:resume": "python3 scripts/parse_resume.py",
 		"build": "vite build",
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",

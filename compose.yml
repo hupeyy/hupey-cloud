@@ -2,7 +2,7 @@ services:
   nginx:
     image: nginx:latest
     ports:
-      - "8008:80"
+      - "80:80"
       - "443:443"
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d
@@ -20,15 +20,15 @@ services:
       - ./certbot/conf:/etc/letsencrypt
     networks:
       - hupey_net
-    
+
   frontend:
     build: ./frontend
     ports:
-      - "8080:3000"
+      - "3000:3000"
     restart: unless-stopped
     networks:
       - hupey_net
-    
+
   mc:
     image: itzg/minecraft-server
     tty: true
@@ -40,8 +40,23 @@ services:
     volumes:
       - ./mc-data:/data
     networks:
-      - hupey_net 
-  
+      - hupey_net
+
+  # pihole:
+  #   container_name: pihole
+  #   image: pihole/pihole:latest
+  #   environment:
+  #     TZ: 'America/New_York'
+  #     WEBPASSWORD: ${WEBPASSWORD}
+  #   volumes:
+  #     - './etc-pihole:/etc/pihole'
+  #     - './etc-dnsmasq.d:/etc/dnsmasq.d'
+  #   networks:
+  #     - hupey_net
+  #   restart: unless-stopped
+  #   ports:
+  #     - "8081:80"
+
 networks:
   hupey_net:
     driver: bridge

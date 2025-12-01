@@ -160,7 +160,7 @@
 
   <!-- Resume Section -->
   <div class="flex-shrink-0">
-    <!-- <Resume /> -->
-    <ParsedResume />
+    <Resume />
+    <!-- <ParsedResume /> -->
   </div>
 </div>
