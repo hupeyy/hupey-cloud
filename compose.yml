@@ -12,7 +12,8 @@ services:
       - hupey_net
     depends_on:
       - frontend
-      
+      - authentik-server
+
   certbot:
     image: certbot/certbot:latest
     volumes:
@@ -26,38 +27,167 @@ services:
     ports:
       - "3000:3000"
     restart: unless-stopped
+    environment:
+      ORIGIN: https://hupey.cloud
+      AUTH_TRUST_HOST: "true"
+      AUTH_SECRET: ${AUTH_SECRET}
+      AUTH_AUTHENTIK_ID: hupey-cloud-frontend
+      AUTH_AUTHENTIK_SECRET: ${AUTH_AUTHENTIK_SECRET}
+      AUTH_AUTHENTIK_ISSUER: https://auth.hupey.cloud/application/o/hupey-cloud/
+      DOCKER_API: http://docker-proxy:2375
+    # Reach auth.hupey.cloud via this host's nginx (router has no hairpin NAT)
+    extra_hosts:
+      - "auth.hupey.cloud:host-gateway"
+    labels:
+      cloud.name: hupey.cloud
+      cloud.url: https://hupey.cloud
+    networks:
+      - hupey_net
+      - docker_api
+
+  # Read-only Docker API for the containers page (list/inspect only)
+  docker-proxy:
+    image: tecnativa/docker-socket-proxy:v0.5.0
+    restart: unless-stopped
+    environment:
+      CONTAINERS: 1
+      POST: 0
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - docker_api
+
+  authentik-db:
+    image: docker.io/library/postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: authentik
+      POSTGRES_USER: authentik
+      POSTGRES_PASSWORD: ${AUTHENTIK_PG_PASS:?database password required}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d authentik -U authentik"]
+      interval: 30s
+      retries: 5
+      start_period: 20s
+      timeout: 5s
+    volumes:
+      - ./authentik/database:/var/lib/postgresql/data
+    networks:
+      - hupey_net
+
+  authentik-server:
+    image: ghcr.io/goauthentik/server:2026.8.3
+    command: server
+    restart: unless-stopped
+    labels:
+      cloud.name: Authentik
+      cloud.url: https://auth.hupey.cloud/if/admin/
+    shm_size: 512mb
+    depends_on:
+      authentik-db:
+        condition: service_healthy
+    environment: &authentik_env
+      AUTHENTIK_POSTGRESQL__HOST: authentik-db
+      AUTHENTIK_POSTGRESQL__NAME: authentik
+      AUTHENTIK_POSTGRESQL__USER: authentik
+      AUTHENTIK_POSTGRESQL__PASSWORD: ${AUTHENTIK_PG_PASS}
+      AUTHENTIK_SECRET_KEY: ${AUTHENTIK_SECRET_KEY:?secret key required}
+      AUTHENTIK_BOOTSTRAP_EMAIL: ${AUTHENTIK_BOOTSTRAP_EMAIL}
+      AUTHENTIK_BOOTSTRAP_PASSWORD: ${AUTHENTIK_BOOTSTRAP_PASSWORD}
+      AUTH_AUTHENTIK_SECRET: ${AUTH_AUTHENTIK_SECRET}
+    volumes:
+      - ./authentik/data:/data
+      - ./authentik/custom-templates:/templates
+    networks:
+      - hupey_net
+
+  authentik-worker:
+    image: ghcr.io/goauthentik/server:2026.8.3
+    command: worker
+    restart: unless-stopped
+    shm_size: 512mb
+    depends_on:
+      authentik-db:
+        condition: service_healthy
+    environment: *authentik_env
+    volumes:
+      - ./authentik/data:/data
+      - ./authentik/certs:/certs
+      - ./authentik/custom-templates:/templates
+      - ./authentik/blueprints:/blueprints/custom
     networks:
       - hupey_net
 
   mc:
     image: itzg/minecraft-server
+    labels:
+      cloud.name: Minecraft
+      cloud.address: hupey.cloud:25565
     tty: true
     stdin_open: true
     ports:
       - "25565:25565"
     environment:
       EULA: "TRUE"
+      ENABLE_AUTOPAUSE: "FALSE"
     volumes:
       - ./mc-data:/data
     networks:
       - hupey_net
 
-  # pihole:
-  #   container_name: pihole
-  #   image: pihole/pihole:latest
-  #   environment:
-  #     TZ: 'America/New_York'
-  #     WEBPASSWORD: ${WEBPASSWORD}
-  #   volumes:
-  #     - './etc-pihole:/etc/pihole'
-  #     - './etc-dnsmasq.d:/etc/dnsmasq.d'
-  #   networks:
-  #     - hupey_net
-  #   restart: unless-stopped
-  #   ports:
-  #     - "8081:80"
+  pihole:
+    container_name: pihole
+    image: pihole/pihole:latest
+    labels:
+      cloud.name: Pi-hole
+      cloud.url: http://192.168.1.235:8081/admin
+    env_file:
+      - secrets/.env
+    environment:
+      TZ: 'America/New_York'
+      WEBPASSWORD: ${PIHOLE_PASSWORD} 
+      FTLCONF_dns_listeningMode: "ALL"
+    volumes:
+      - './etc-pihole:/etc/pihole'
+      - './etc-dnsmasq.d:/etc/dnsmasq.d'
+    networks:
+      - hupey_net
+    restart: unless-stopped
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "8081:80" 
+  
+  terraria:
+    image: hexlo/terraria-server-docker:latest
+    labels:
+      cloud.name: Terraria
+      cloud.address: hupey.cloud:7777
+    container_name: terraria
+    restart: unless-stopped
+    env_file:
+      - secrets/.env
+    stdin_open: true
+    tty: true
+    ports:
+      - "7777:7777"
+    volumes:
+      - ~/terraria-worlds:/root/.local/share/Terraria/Worlds
+    environment:
+      - world=${TERRARIA_WORLD}.wld
+      - autocreate=2
+      - difficulty=1
+      - maxplayers=8
+      - port=7777
+      - password=${TERRARIA_PASSWORD}
+      - motd=Welcome to Hupi's server! :)
+      - secure=0
+    networks:
+      - hupey_net
 
 networks:
   hupey_net:
     driver: bridge
     name: hupey_network
+  docker_api:
+    internal: true

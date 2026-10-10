@@ -2,4 +2,9 @@ mc-data
 certbot
 nginx
 etc-*
+secrets/.env
 .env
+authentik/database
+authentik/data
+authentik/certs
+*.log

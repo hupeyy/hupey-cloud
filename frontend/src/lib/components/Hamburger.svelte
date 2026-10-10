@@ -1,8 +1,16 @@
 <script>
 	import { slide, fly } from 'svelte/transition';
 	import Button from './ui/button/button.svelte';
+	import { signOut } from '@auth/sveltekit/client';
+
+	export let session = null;
 
 	let isOpen = false;
+
+	function handleSignOut() {
+		closeMenu();
+		signOut({ redirectTo: '/' });
+	}
 
 	function toggleMenu() {
 		isOpen = !isOpen;
@@ -64,6 +72,30 @@
 				class="block px-6 py-4 transition-colors hover:bg-gray-100"
 				on:click={closeMenu}>Portfolio</a
 			>
+			{#if session?.user}
+				<a
+					href="/account"
+					class="block px-6 py-4 transition-colors hover:bg-gray-100"
+					on:click={closeMenu}>Account</a
+				>
+				{#if session.user.isAdmin}
+					<a
+						href="/containers"
+						class="block px-6 py-4 transition-colors hover:bg-gray-100"
+						on:click={closeMenu}>Containers</a
+					>
+				{/if}
+				<button
+					class="block w-full px-6 py-4 text-left transition-colors hover:bg-gray-100"
+					on:click={handleSignOut}>Sign out</button
+				>
+			{:else}
+				<a
+					href="/login"
+					class="block px-6 py-4 transition-colors hover:bg-gray-100"
+					on:click={closeMenu}>Sign in</a
+				>
+			{/if}
 		</div>
 	</nav>
 
@@ -99,6 +131,38 @@
 				>
 					Portfolio
 				</a>
+				{#if session?.user}
+					<a
+						href="/account"
+						class="rounded-lg px-4 py-3 text-base transition-colors hover:bg-gray-100"
+						on:click={closeMenu}
+					>
+						Account
+					</a>
+					{#if session.user.isAdmin}
+						<a
+							href="/containers"
+							class="rounded-lg px-4 py-3 text-base transition-colors hover:bg-gray-100"
+							on:click={closeMenu}
+						>
+							Containers
+						</a>
+					{/if}
+					<button
+						class="rounded-lg px-4 py-3 text-left text-base transition-colors hover:bg-gray-100"
+						on:click={handleSignOut}
+					>
+						Sign out
+					</button>
+				{:else}
+					<a
+						href="/login"
+						class="rounded-lg px-4 py-3 text-base transition-colors hover:bg-gray-100"
+						on:click={closeMenu}
+					>
+						Sign in
+					</a>
+				{/if}
 			</nav>
 		</div>
 	</div>

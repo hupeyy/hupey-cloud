@@ -2,9 +2,9 @@
 	import '../app.css';
 	import Hamburger from '$lib/components/Hamburger.svelte';
 
-	let { children } = $props();
+	let { children, data } = $props();
 </script>
 
-<Hamburger />
+<Hamburger session={data.session} />
 {@render children()}
 
