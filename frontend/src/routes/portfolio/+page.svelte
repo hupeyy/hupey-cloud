@@ -159,20 +159,18 @@
 		if (scroller) scroller.scrollLeft = scroller.scrollWidth;
 	});
 
-	let pageHeight = $state(1);
-	let heroHeight = $state(0);
-	const sky = $derived.by(() => {
-		const h = Math.min(heroHeight / pageHeight, 0.9);
-		return [
-			[0, '#7fd2eb'],
-			[h * 0.3, '#a4b1db'],
-			[h * 0.58, '#c990cb'],
-			[h * 0.8, '#8a5d8f'],
-			[h, '#4a2a52'],
-			[h + (1 - h) * 0.5, '#3e2246'],
-			[1, '#2e1835']
-		];
-	});
+	// Page background, top to bottom: blue, pink in the middle, purple at the bottom.
+	// The colours are kept deep enough for white text to read on every band.
+	const sky = [
+		[0, '#7fd2eb'],
+		[0.1, '#78b6dc'],
+		[0.22, '#7f8fcb'],
+		[0.36, '#9a6db4'],
+		[0.5, '#b4508e'],
+		[0.66, '#93447f'],
+		[0.82, '#66356b'],
+		[1, '#3a2042']
+	];
 
 	const updated = (iso) =>
 		new Date(iso).toLocaleDateString('en', { month: 'short', year: 'numeric' });
@@ -182,10 +180,10 @@
 	<title>Alex Huper</title>
 </svelte:head>
 
-<main bind:clientHeight={pageHeight}>
+<main>
 	<DitherSky stops={sky} />
 
-	<header class="hero" bind:clientHeight={heroHeight}>
+	<header class="hero">
 		<div class="beams" aria-hidden="true"></div>
 		<div class="avatar">
 			<ModelViewer
@@ -327,14 +325,14 @@
 		--bubblegum: #fb64b6;
 		--haze: #eef0f6;
 		--bruise: #4a2a52;
-		--smog: #b9b3cf;
+		--smog: #e3dcef;
 		--pixel: 'Silkscreen', 'jetbrains-mono', monospace;
 
 		position: relative;
 		overflow: hidden;
 		min-height: 100vh;
 		/* Shown until the dithered canvas has drawn */
-		background: linear-gradient(to bottom, var(--sky), #c990cb 12%, var(--bruise) 22%, #2e1835);
+		background: linear-gradient(to bottom, #7fd2eb, #7f8fcb 22%, #b4508e 50%, #66356b 82%, #3a2042);
 		color: var(--haze);
 	}
 
@@ -467,34 +465,14 @@
 	}
 
 	h2 {
-		--spray: var(--bubblegum);
-		position: relative;
 		margin-bottom: 1.75rem;
 		font-size: clamp(1.4rem, 3vw, 1.9rem);
-		color: var(--bubblegum);
+		font-weight: 700;
 	}
 
-	.block:nth-of-type(even) h2 {
-		--spray: var(--sky);
-	}
-
-	/* Spray-paint overspray: a soft mist of colour behind the heading */
-	h2::before {
-		content: '';
-		position: absolute;
-		z-index: -1;
-		top: 50%;
-		left: -2.5rem;
-		width: min(30rem, 95vw);
-		height: 8rem;
-		translate: 0 -50%;
-		pointer-events: none;
-		background: radial-gradient(
-			closest-side,
-			color-mix(in srgb, var(--spray) 28%, transparent),
-			transparent
-		);
-		filter: blur(8px);
+	/* A dark edge keeps text legible on the lighter bands of the background */
+	.block {
+		text-shadow: 0 1px 2px rgb(40 18 50 / 0.55);
 	}
 
 	.muted {
@@ -542,7 +520,7 @@
 
 	.cell {
 		aspect-ratio: 1;
-		background: rgb(255 255 255 / 0.07);
+		background: rgb(40 18 50 / 0.28);
 		box-shadow: inset 0 0 0 2rem rgb(255 255 255 / calc(var(--ink, 0) * 0.5));
 		transition: box-shadow 0.35s ease-out var(--ink-delay, 0ms);
 	}
@@ -558,11 +536,12 @@
 		outline-offset: 1px;
 	}
 
+	/* White ramp with pink for busy days: reads on every band of the background */
 	.cell[data-level='1'] {
-		background: color-mix(in srgb, var(--sky) 70%, var(--bruise));
+		background: rgb(255 255 255 / 0.32);
 	}
 	.cell[data-level='2'] {
-		background: var(--sky);
+		background: rgb(255 255 255 / 0.6);
 	}
 	.cell[data-level='3'] {
 		background: var(--bubblegum);
@@ -677,11 +656,8 @@
 		left: calc(-2rem - 7px);
 		width: 12px;
 		height: 12px;
-		background: var(--bubblegum);
-	}
-
-	.timeline > li:last-child::before {
-		background: var(--sky);
+		background: var(--haze);
+		box-shadow: 0 1px 2px rgb(40 18 50 / 0.55);
 	}
 
 	.dates {
@@ -709,7 +685,7 @@
 	}
 
 	.points li::marker {
-		color: var(--bubblegum);
+		color: var(--haze);
 	}
 
 	/* ---------- Skills ---------- */
