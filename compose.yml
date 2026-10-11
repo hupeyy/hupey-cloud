@@ -121,6 +121,7 @@ services:
 
   mc:
     image: itzg/minecraft-server
+    restart: unless-stopped
     labels:
       cloud.name: Minecraft
       cloud.address: hupey.cloud:25565
@@ -131,6 +132,7 @@ services:
     environment:
       EULA: "TRUE"
       ENABLE_AUTOPAUSE: "FALSE"
+      VERSION: "26.3"
     volumes:
       - ./mc-data:/data
     networks:
