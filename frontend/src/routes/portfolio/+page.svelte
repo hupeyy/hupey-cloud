@@ -1,5 +1,6 @@
 <script>
 	import ModelViewer from '$lib/components/ModelViewer.svelte';
+	import DitherSky from '$lib/components/DitherSky.svelte';
 
 	let { data } = $props();
 
@@ -136,7 +137,13 @@
 			.reduce((a, d) => (d.count > a.count ? d : a), { count: 0 })
 	);
 
-	let hovered = $state(null);
+	// Hovering a day lights up its neighbours, fading with distance like spreading ink
+	let hovered = $state(null); // { day, w, d }
+	const ink = (w, d) => {
+		if (!hovered) return { amount: 0, delay: 0 };
+		const dist = Math.hypot(w - hovered.w, d - hovered.d);
+		return { amount: Math.max(0, 1 - dist / 3.5), delay: dist * 45 };
+	};
 	const longDate = (d) =>
 		new Date(d + 'T00:00').toLocaleDateString('en', {
 			month: 'long',
@@ -152,6 +159,43 @@
 		if (scroller) scroller.scrollLeft = scroller.scrollWidth;
 	});
 
+	// Hero sky: sky blue through lilac into the plum wall, dithered
+	const sky = [
+		[0, '#7fd2eb'],
+		[0.3, '#a4b1db'],
+		[0.58, '#c990cb'],
+		[0.8, '#8a5d8f'],
+		[1, '#4a2a52']
+	];
+
+	// Hairline cracks in the plaster. Seeded, so the server and browser draw the same ones.
+	function cracks() {
+		let seed = 11;
+		const rand = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+		const paths = [];
+		const grow = (x, y, angle, steps, depth) => {
+			let d = `M${x.toFixed(1)} ${y.toFixed(1)}`;
+			for (let i = 0; i < steps; i++) {
+				angle += (rand() - 0.5) * 0.9;
+				const step = 8 + rand() * 14;
+				x += Math.cos(angle) * step;
+				y += Math.sin(angle) * step;
+				d += ` L${x.toFixed(1)} ${y.toFixed(1)}`;
+				if (depth < 2 && rand() < 0.12) {
+					const turn = (rand() < 0.5 ? -1 : 1) * (0.6 + rand() * 0.6);
+					grow(x, y, angle + turn, Math.floor(steps * 0.4), depth + 1);
+				}
+			}
+			paths.push(d);
+		};
+		grow(0, 520, 0.2, 14, 0);
+		grow(1000, 260, Math.PI - 0.4, 18, 0);
+		grow(1000, 1300, Math.PI + 0.25, 16, 0);
+		grow(0, 2050, -0.3, 15, 0);
+		return paths;
+	}
+	const crackPaths = cracks();
+
 	const updated = (iso) =>
 		new Date(iso).toLocaleDateString('en', { month: 'short', year: 'numeric' });
 </script>
@@ -162,6 +206,8 @@
 
 <main>
 	<header class="hero">
+		<DitherSky stops={sky} />
+		<div class="beams" aria-hidden="true"></div>
 		<div class="avatar">
 			<ModelViewer
 				modelURL="/models/hupey-avatar.gltf"
@@ -185,109 +231,120 @@
 		</div>
 	</header>
 
-	<section class="block" aria-labelledby="contrib-heading">
-		<h2 id="contrib-heading">
-			{#if data.calendar?.total != null}
-				{data.calendar.total.toLocaleString()} contributions in the last year
-			{:else}
-				Contributions
-			{/if}
-		</h2>
+	<div class="wall">
+		<svg class="cracks" viewBox="0 0 1000 2400" preserveAspectRatio="none" aria-hidden="true">
+			{#each crackPaths as d}
+				<path {d} class="crack-light" />
+				<path {d} class="crack" />
+			{/each}
+		</svg>
 
-		{#if weeks.length}
-			<div class="calendar-scroll" bind:this={scroller}>
-				<div
-					class="calendar"
-					style="--weeks: {weeks.length}"
-					role="img"
-					aria-label="GitHub contribution calendar. Busiest day: {dayLabel(busiest)}."
-				>
-					{#each months as m, i}
-						<span class="month" style="grid-column: {i + 2}">{m}</span>
-					{/each}
-					<span class="weekday" style="grid-row: 3">Mon</span>
-					<span class="weekday" style="grid-row: 5">Wed</span>
-					<span class="weekday" style="grid-row: 7">Fri</span>
-					{#each weeks as week, w}
-						{#each week as day, d}
-							{#if day}
-								<span
-									class="cell"
-									data-level={day.level}
-									style="grid-column: {w + 2}; grid-row: {d + 2}"
-									title={dayLabel(day)}
-									onpointerenter={() => (hovered = day)}
-									onpointerleave={() => (hovered = null)}
-								></span>
-							{/if}
+		<section class="block" aria-labelledby="contrib-heading">
+			<h2 id="contrib-heading">
+				{#if data.calendar?.total != null}
+					{data.calendar.total.toLocaleString()} contributions in the last year
+				{:else}
+					Contributions
+				{/if}
+			</h2>
+
+			{#if weeks.length}
+				<div class="calendar-scroll" bind:this={scroller}>
+					<div
+						class="calendar"
+						style="--weeks: {weeks.length}"
+						role="img"
+						aria-label="GitHub contribution calendar. Busiest day: {dayLabel(busiest)}."
+						onpointerleave={() => (hovered = null)}
+					>
+						{#each months as m, i}
+							<span class="month" style="grid-column: {i + 2}">{m}</span>
 						{/each}
-					{/each}
+						<span class="weekday" style="grid-row: 3">Mon</span>
+						<span class="weekday" style="grid-row: 5">Wed</span>
+						<span class="weekday" style="grid-row: 7">Fri</span>
+						{#each weeks as week, w}
+							{#each week as day, d}
+								{#if day}
+									{@const spread = ink(w, d)}
+									<span
+										class="cell"
+										data-level={day.level}
+										style="grid-column: {w + 2}; grid-row: {d +
+											2}; --ink: {spread.amount}; --ink-delay: {spread.delay}ms"
+										title={dayLabel(day)}
+										onpointerenter={() => (hovered = { day, w, d })}
+									></span>
+								{/if}
+							{/each}
+						{/each}
+					</div>
 				</div>
-			</div>
-			<p class="readout" aria-live="polite">
-				{hovered ? dayLabel(hovered) : `Busiest day: ${dayLabel(busiest)}`}
-			</p>
-		{:else}
-			<p class="muted">
-				GitHub didn't send the calendar just now. It's on
-				<a href="https://github.com/hupeyy">github.com/hupeyy</a>.
-			</p>
-		{/if}
-	</section>
+				<p class="readout" aria-live="polite">
+					{hovered ? dayLabel(hovered.day) : `Busiest day: ${dayLabel(busiest)}`}
+				</p>
+			{:else}
+				<p class="muted">
+					GitHub didn't send the calendar just now. It's on
+					<a href="https://github.com/hupeyy">github.com/hupeyy</a>.
+				</p>
+			{/if}
+		</section>
 
-	<section class="block" aria-labelledby="repos-heading">
-		<h2 id="repos-heading">Pinned repositories</h2>
-		{#if data.repos?.length}
-			<ul class="repos">
-				{#each data.repos as r}
+		<section class="block" aria-labelledby="repos-heading">
+			<h2 id="repos-heading">Pinned repositories</h2>
+			{#if data.repos?.length}
+				<ul class="repos">
+					{#each data.repos as r}
+						<li>
+							<a href={r.url} target="_blank" rel="noopener" class="repo">
+								<span class="repo-name">{r.name}</span>
+								{#if r.description}<span class="repo-desc">{r.description}</span>{/if}
+								<span class="repo-meta">
+									{#if r.language}<span>{r.language}</span>{/if}
+									{#if r.stars}<span>{r.stars} star{r.stars === 1 ? '' : 's'}</span>{/if}
+									<span>Updated {updated(r.pushedAt)}</span>
+								</span>
+							</a>
+						</li>
+					{/each}
+				</ul>
+			{:else}
+				<p class="muted">
+					Couldn't load repositories from GitHub. See them on
+					<a href="https://github.com/hupeyy?tab=repositories">github.com/hupeyy</a>.
+				</p>
+			{/if}
+		</section>
+
+		<section class="block" aria-labelledby="exp-heading">
+			<h2 id="exp-heading">Experience</h2>
+			<ol class="timeline">
+				{#each experience as job}
 					<li>
-						<a href={r.url} target="_blank" rel="noopener" class="repo">
-							<span class="repo-name">{r.name}</span>
-							{#if r.description}<span class="repo-desc">{r.description}</span>{/if}
-							<span class="repo-meta">
-								{#if r.language}<span>{r.language}</span>{/if}
-								{#if r.stars}<span>{r.stars} star{r.stars === 1 ? '' : 's'}</span>{/if}
-								<span>Updated {updated(r.pushedAt)}</span>
-							</span>
-						</a>
+						<p class="dates">{job.dates}</p>
+						<h3>{job.role}</h3>
+						<p class="org">{job.place ? `${job.org}, ${job.place}` : job.org}</p>
+						{#if job.points.length}
+							<ul class="points">
+								{#each job.points as p}<li>{p}</li>{/each}
+							</ul>
+						{/if}
 					</li>
 				{/each}
-			</ul>
-		{:else}
-			<p class="muted">
-				Couldn't load repositories from GitHub. See them on
-				<a href="https://github.com/hupeyy?tab=repositories">github.com/hupeyy</a>.
-			</p>
-		{/if}
-	</section>
+			</ol>
+		</section>
 
-	<section class="block" aria-labelledby="exp-heading">
-		<h2 id="exp-heading">Experience</h2>
-		<ol class="timeline">
-			{#each experience as job}
-				<li>
-					<p class="dates">{job.dates}</p>
-					<h3>{job.role}</h3>
-					<p class="org">{job.place ? `${job.org}, ${job.place}` : job.org}</p>
-					{#if job.points.length}
-						<ul class="points">
-							{#each job.points as p}<li>{p}</li>{/each}
-						</ul>
-					{/if}
-				</li>
-			{/each}
-		</ol>
-	</section>
-
-	<section class="block" aria-labelledby="skills-heading">
-		<h2 id="skills-heading">Skills</h2>
-		<dl class="skills">
-			{#each skills as s}
-				<dt>{s.group}</dt>
-				<dd>{s.items.join(', ')}</dd>
-			{/each}
-		</dl>
-	</section>
+		<section class="block" aria-labelledby="skills-heading">
+			<h2 id="skills-heading">Skills</h2>
+			<dl class="skills">
+				{#each skills as s}
+					<dt>{s.group}</dt>
+					<dd>{s.items.join(', ')}</dd>
+				{/each}
+			</dl>
+		</section>
+	</div>
 
 	<div class="grain" aria-hidden="true"></div>
 </main>
@@ -304,7 +361,6 @@
 		position: relative;
 		overflow: hidden;
 		min-height: 100vh;
-		padding-bottom: 6rem;
 		background: var(--bruise);
 		color: var(--haze);
 	}
@@ -321,6 +377,8 @@
 	/* ---------- Hero ---------- */
 
 	.hero {
+		position: relative;
+		isolation: isolate;
 		display: grid;
 		grid-template-columns: minmax(0, 1fr);
 		align-items: end;
@@ -332,6 +390,11 @@
 			color-mix(in srgb, var(--sky) 40%, var(--bubblegum)) 60%,
 			var(--bruise)
 		);
+	}
+
+	.avatar,
+	.who {
+		position: relative;
 	}
 
 	.avatar {
@@ -363,6 +426,13 @@
 		line-height: 0.95;
 	}
 
+	.role,
+	.links {
+		text-shadow:
+			0 1px 0 rgb(74 42 82 / 0.7),
+			0 0 12px rgb(74 42 82 / 0.5);
+	}
+
 	.role {
 		max-width: 32rem;
 		margin-bottom: 1.5rem;
@@ -386,6 +456,66 @@
 		color: var(--sky);
 	}
 
+	/* Light through the fog: soft diagonal shafts from the top left, fading downward */
+	.beams {
+		position: absolute;
+		inset: 0 0 -40%;
+		pointer-events: none;
+		background:
+			linear-gradient(115deg, transparent 8%, rgb(255 255 255 / 0.3) 11%, transparent 15%),
+			linear-gradient(115deg, transparent 19%, rgb(255 255 255 / 0.2) 23%, transparent 30%),
+			linear-gradient(115deg, transparent 36%, rgb(255 255 255 / 0.1) 38%, transparent 41%),
+			linear-gradient(115deg, transparent 50%, rgb(255 255 255 / 0.12) 55%, transparent 62%);
+		filter: blur(10px);
+		mix-blend-mode: screen;
+		mask-image: radial-gradient(ellipse 90% 80% at 10% 0%, black 30%, transparent 80%);
+	}
+
+	/* ---------- Plaster wall: everything below the hero ---------- */
+
+	.wall {
+		position: relative;
+		padding-bottom: 6rem;
+		background: var(--bruise);
+	}
+
+	.wall::before {
+		content: '';
+		position: absolute;
+		inset: 0;
+		pointer-events: none;
+		opacity: 0.35;
+		mix-blend-mode: soft-light;
+		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='500' height='500'%3E%3Cfilter id='p' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.018' numOctaves='6' seed='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)'/%3E%3C/svg%3E");
+		mask-image: linear-gradient(to bottom, transparent, black 10rem);
+	}
+
+	.cracks {
+		position: absolute;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		pointer-events: none;
+	}
+
+	.crack,
+	.crack-light {
+		fill: none;
+		vector-effect: non-scaling-stroke;
+		stroke-linejoin: bevel;
+		stroke-width: 1.4;
+	}
+
+	.crack {
+		stroke: rgb(20 6 26 / 0.6);
+	}
+
+	/* A lit lower lip under each crack gives it depth */
+	.crack-light {
+		stroke: rgb(255 255 255 / 0.08);
+		transform: translateY(1.5px);
+	}
+
 	/* ---------- Sections ---------- */
 
 	.block {
@@ -397,9 +527,47 @@
 	}
 
 	h2 {
+		--spray: var(--bubblegum);
+		position: relative;
 		margin-bottom: 1.75rem;
 		font-size: clamp(1.4rem, 3vw, 1.9rem);
 		color: var(--bubblegum);
+	}
+
+	.block:nth-of-type(even) h2 {
+		--spray: var(--sky);
+	}
+
+	/* Spray-paint overspray: a soft mist plus a speckle of droplets */
+	h2::before,
+	h2::after {
+		content: '';
+		position: absolute;
+		z-index: -1;
+		top: 50%;
+		left: -2.5rem;
+		width: min(30rem, 95vw);
+		height: 8rem;
+		translate: 0 -50%;
+		pointer-events: none;
+	}
+
+	h2::before {
+		background: radial-gradient(
+			closest-side,
+			color-mix(in srgb, var(--spray) 28%, transparent),
+			transparent
+		);
+		filter: blur(8px);
+	}
+
+	h2::after {
+		background: var(--spray);
+		opacity: 0.55;
+		mask-image:
+			url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='d'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='1' seed='5' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 14 -8.6'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23d)'/%3E%3C/svg%3E"),
+			radial-gradient(closest-side, black 25%, transparent);
+		mask-composite: intersect;
 	}
 
 	.muted {
@@ -448,6 +616,14 @@
 	.cell {
 		aspect-ratio: 1;
 		background: rgb(255 255 255 / 0.07);
+		box-shadow: inset 0 0 0 2rem rgb(255 255 255 / calc(var(--ink, 0) * 0.5));
+		transition: box-shadow 0.35s ease-out var(--ink-delay, 0ms);
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.cell {
+			transition: none;
+		}
 	}
 
 	.cell:hover {
