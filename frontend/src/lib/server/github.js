@@ -6,22 +6,38 @@ const USER = 'hupeyy';
 const TTL = 60 * 60 * 1000;
 const cache = new Map();
 
-async function cached(key, load) {
+const RETRY = 5 * 60 * 1000;
+const TIMEOUT = 5000;
+
+// Concurrent callers share one in-flight load. A failed refresh keeps serving the
+// stale value and waits RETRY before trying GitHub again, so an outage or rate
+// limit doesn't turn every page view into fresh (slow, quota-burning) requests.
+function cached(key, load) {
 	const hit = cache.get(key);
-	if (hit && Date.now() - hit.at < TTL) return hit.value;
-	try {
-		const value = await load();
-		cache.set(key, { at: Date.now(), value });
-		return value;
-	} catch (err) {
-		// Serve stale data rather than nothing if GitHub is down
-		if (hit) return hit.value;
-		throw err;
-	}
+	if (hit && (hit.pending || Date.now() - hit.at < TTL)) return hit.pending ?? hit.value;
+	const pending = load().then(
+		(value) => {
+			cache.set(key, { at: Date.now(), value });
+			return value;
+		},
+		(err) => {
+			if (!hit) {
+				cache.delete(key);
+				throw err;
+			}
+			cache.set(key, { at: Date.now() - TTL + RETRY, value: hit.value });
+			return hit.value;
+		}
+	);
+	cache.set(key, { ...hit, pending });
+	return pending;
 }
 
 async function text(url) {
-	const res = await fetch(url, { headers: { 'User-Agent': 'hupey.cloud' } });
+	const res = await fetch(url, {
+		headers: { 'User-Agent': 'hupey.cloud' },
+		signal: AbortSignal.timeout(TIMEOUT)
+	});
 	if (!res.ok) throw new Error(`${url} returned ${res.status}`);
 	return res.text();
 }
@@ -40,10 +56,12 @@ export function contributions() {
 
 		const weeks = [];
 		for (const [tag] of html.matchAll(/<td[^>]*data-date="[^"]*"[^>]*>/g)) {
-			const date = tag.match(/data-date="([^"]+)"/)[1];
-			const id = tag.match(/id="([^"]+)"/)[1];
+			const date = tag.match(/data-date="([^"]+)"/)?.[1];
+			const id = tag.match(/id="([^"]+)"/)?.[1];
+			const pos = id?.match(/-(\d+)-(\d+)$/);
+			if (!date || !pos) continue;
+			const [, row, col] = pos.map(Number);
 			const level = Number(tag.match(/data-level="(\d)"/)?.[1] ?? 0);
-			const [, row, col] = id.match(/-(\d+)-(\d+)$/).map(Number);
 			(weeks[col] ??= [])[row] = { date, level, count: counts.get(id) ?? 0 };
 		}
 
@@ -57,7 +75,7 @@ export function contributions() {
 
 // The repos pinned on the profile, in pinned order; falls back to most starred
 export function topRepos(limit = 6) {
-	return cached('repos', async () => {
+	return cached(`repos:${limit}`, async () => {
 		const [profile, reposJson] = await Promise.all([
 			text(`https://github.com/${USER}`),
 			text(`https://api.github.com/users/${USER}/repos?per_page=100&type=owner`)

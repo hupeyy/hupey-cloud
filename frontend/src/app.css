@@ -37,6 +37,8 @@
   --sidebar-ring: oklch(0.708 0 0);
   --blue: #7fd2eb;
   --pink: #fb64b6;
+  /* Ragged torn-paper edge for row dividers (landing and portfolio pages) */
+  --tear: polygon(0 30%, 7% 0, 13% 55%, 22% 20%, 30% 70%, 38% 10%, 47% 45%, 55% 0, 61% 60%, 70% 25%, 78% 75%, 86% 5%, 93% 50%, 100% 20%, 100% 100%, 0 100%);
 }
 
 .dark {

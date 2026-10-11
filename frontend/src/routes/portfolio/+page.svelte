@@ -121,14 +121,14 @@
 
 	// ---- Contribution calendar ----
 	const weeks = $derived(data.calendar?.weeks ?? []);
+	// The first week usually starts mid-week, so its Sunday slot is empty
+	const firstDays = $derived(weeks.map((week) => new Date(week.find(Boolean).date + 'T00:00')));
 	const months = $derived(
-		weeks.map((week, i) => {
-			const month = new Date(week[0].date + 'T00:00').getMonth();
-			const prev = i ? new Date(weeks[i - 1][0].date + 'T00:00').getMonth() : null;
-			return month !== prev && i < weeks.length - 2
-				? new Date(week[0].date + 'T00:00').toLocaleString('en', { month: 'short' })
-				: '';
-		})
+		firstDays.map((day, i) =>
+			(!i || day.getMonth() !== firstDays[i - 1].getMonth()) && i < weeks.length - 2
+				? day.toLocaleString('en', { month: 'short' })
+				: ''
+		)
 	);
 	const busiest = $derived(
 		weeks
@@ -152,6 +152,7 @@
 		});
 	const dayLabel = (d) =>
 		`${d.count || 'No'} contribution${d.count === 1 ? '' : 's'} on ${longDate(d.date)}`;
+	const busiestLabel = $derived(busiest.date ? dayLabel(busiest) : 'none yet');
 
 	// Start the calendar scrolled to the most recent weeks on narrow screens
 	let scroller = $state();
@@ -230,7 +231,7 @@
 						class="calendar"
 						style="--weeks: {weeks.length}"
 						role="img"
-						aria-label="GitHub contribution calendar. Busiest day: {dayLabel(busiest)}."
+						aria-label="GitHub contribution calendar. Busiest day: {busiestLabel}."
 						onpointerleave={() => (hovered = null)}
 					>
 						{#each months as m, i}
@@ -257,7 +258,7 @@
 					</div>
 				</div>
 				<p class="readout" aria-live="polite">
-					{hovered ? dayLabel(hovered.day) : `Busiest day: ${dayLabel(busiest)}`}
+					{hovered ? dayLabel(hovered.day) : `Busiest day: ${busiestLabel}`}
 				</p>
 			{:else}
 				<p class="muted">
@@ -600,24 +601,7 @@
 		inset: 0 0 auto;
 		height: 5px;
 		background: color-mix(in srgb, var(--smog) 45%, transparent);
-		clip-path: polygon(
-			0 30%,
-			7% 0,
-			13% 55%,
-			22% 20%,
-			30% 70%,
-			38% 10%,
-			47% 45%,
-			55% 0,
-			61% 60%,
-			70% 25%,
-			78% 75%,
-			86% 5%,
-			93% 50%,
-			100% 20%,
-			100% 100%,
-			0 100%
-		);
+		clip-path: var(--tear);
 	}
 
 	.repo {

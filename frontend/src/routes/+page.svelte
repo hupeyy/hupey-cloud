@@ -33,16 +33,18 @@
 		return () => query.removeEventListener('change', update);
 	});
 
+	let copiedTimer;
 	async function copy(address) {
-		await navigator.clipboard.writeText(address);
+		try {
+			await navigator.clipboard.writeText(address);
+		} catch {
+			return; // Clipboard unavailable or denied; the address is on screen to copy by hand
+		}
 		copied = address;
-		setTimeout(() => (copied = null), 2000);
+		clearTimeout(copiedTimer);
+		copiedTimer = setTimeout(() => (copied = null), 2000);
 	}
 
-	// A ragged edge for the row dividers, fixed so it doesn't change between renders
-	const tear = `polygon(${[0, 7, 13, 22, 30, 38, 47, 55, 61, 70, 78, 86, 93, 100]
-		.map((x, i) => `${x}% ${[30, 0, 55, 20, 70, 10, 45, 0, 60, 25, 75, 5, 50, 20][i]}%`)
-		.join(', ')}, 100% 100%, 0 100%)`;
 </script>
 
 <svelte:window bind:scrollY bind:innerHeight />
@@ -73,7 +75,7 @@
 	</filter>
 </svg>
 
-<main style="--tear: {tear}">
+<main>
 	<section class="hero">
 		<div class="fog fog-back" style="translate: {drift * -18}% 0" aria-hidden="true"></div>
 

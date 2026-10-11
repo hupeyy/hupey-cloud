@@ -21,6 +21,7 @@
 	const rgb = (hex) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
 
 	function draw() {
+		if (stops.length < 2) return; // need at least two colours to dither between
 		const w = Math.max(1, Math.ceil(canvas.clientWidth / pixel));
 		const h = Math.max(2, Math.ceil(canvas.clientHeight / pixel));
 		canvas.width = w;
