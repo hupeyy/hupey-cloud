@@ -161,7 +161,7 @@
 		</div>
 		<div class="who">
 			<h1>Alex Huper</h1>
-			<p class="role">Software engineer. Full stack, mostly Svelte, Go, and Python.</p>
+			<p class="role">Software engineer</p>
 			<nav class="links" aria-label="Profiles">
 				{#each links as l}
 					<a href={l.href} target={l.href.startsWith('http') ? '_blank' : undefined} rel="noopener">
