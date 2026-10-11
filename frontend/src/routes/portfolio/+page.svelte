@@ -464,6 +464,7 @@
 		margin: 2rem auto 0;
 		padding: 2rem 1.25rem;
 		border: 1px solid rgb(255 255 255 / 0.08);
+		border-radius: 1px;
 		background: rgb(28 26 34 / 0.34);
 		backdrop-filter: blur(3px);
 	}
