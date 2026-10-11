@@ -9,31 +9,45 @@
 		{ label: 'Email', href: 'mailto:alexanderhuper@gmail.com' }
 	];
 
-	// Newest first. Mirrors the LinkedIn profile.
+	// Copied from the LinkedIn profile (linkedin.com/in/alex-huper), in its order
 	const experience = [
 		{
-			role: 'Web Developer',
+			role: 'Software Engineer',
+			org: 'RipplePoint',
+			place: 'Orlando, FL',
+			dates: 'Oct 2026 – Present',
+			points: []
+		},
+		{
+			role: 'Software Engineer Intern',
+			org: 'RipplePoint',
+			place: 'Orlando, FL',
+			dates: 'Jul 2026 – Oct 2026',
+			points: []
+		},
+		{
+			role: 'AI Data Annotator',
+			org: 'Handshake',
+			dates: 'Dec 2025 – Present',
+			points: []
+		},
+		{
+			role: 'Software Engineer',
 			org: 'Every Flavor Robotics',
-			place: 'Remote',
 			dates: 'Apr 2025 – Sep 2025',
 			points: [
-				'Built customer-facing features for CaterLynx v1.1, a catering management platform.',
-				'Built a dynamic email template editor with Astro and Alpine.js, replacing manual drafting.',
-				'Added database-backed templating for personalized customer content.',
-				'Engineered a driver management suite with an availability calendar and automated scheduling.'
+				'Contributed to CaterLynx v1.1 development, building customer-facing features for a catering management platform.',
+				'Reduced manual drafting effort by 80% by creating an email template rich text editor for customer communications.',
+				'Implemented dynamic templating with database integration, enabling personalized variables for customer content.',
+				'Engineered a Driver Management Suite with an availability calendar, boosting scheduling efficiency by 60%.'
 			]
 		},
 		{
-			role: 'Mentorship Coordinator',
-			org: 'ColorStack UF',
+			role: 'Academic Programs Coordinator',
+			org: 'ColorStack UFlorida',
 			place: 'Gainesville, FL',
 			dates: 'Mar 2024 – Apr 2025',
-			points: [
-				'Founded the Internal Projects initiative: 4 project leads and 15+ interns building 3 projects at once.',
-				'Designed 3 skill-building programs for 10+ members.',
-				'Helped grow the UF chapter to 400+ members.',
-				'Ran mentorship for 20+ members, supporting career prep and 5 job offers.'
-			]
+			points: []
 		},
 		{
 			role: 'Software Engineer Intern',
@@ -41,16 +55,15 @@
 			place: 'Denver, CO',
 			dates: 'May 2024 – Aug 2024',
 			points: [
-				'Built Dalia, an AI cooking assistant (Python, TogetherAI, Edamam) for personalized recipes and meal plans.',
-				'Cut Dalia’s memory use by 36% and response time to 1.8s with few-shot prompting and context pruning.',
-				'Moved Gourmet For Good’s CaterMatrix to Astro and Alpine.js, adding dashboards and staff updates.',
-				'Ran customer interviews and user research to improve usability.'
+				'Built Dalia, an AI cooking assistant (Python, TogetherAI, Edamam) for personalized recipes and meal planning.',
+				'Trained Dalia using few-shot learning and context pruning, achieving 36% memory reduction and 1.8s queries.',
+				'Modernized Gourmet For Good’s CaterMatrix to Astro and HTMX, introducing custom dashboards and staff updates.',
+				'Conducted customer interviews to optimize user experience and streamlined internal workflows by 40%.'
 			]
 		},
 		{
-			role: 'B.S. Computer Science, minor in Mathematics',
+			role: 'B.S. Computer Science',
 			org: 'University of Florida',
-			place: 'Gainesville, FL',
 			dates: 'Aug 2021 – Dec 2024',
 			points: []
 		}
@@ -255,7 +268,7 @@
 				<li>
 					<p class="dates">{job.dates}</p>
 					<h3>{job.role}</h3>
-					<p class="org">{job.org}, {job.place}</p>
+					<p class="org">{job.place ? `${job.org}, ${job.place}` : job.org}</p>
 					{#if job.points.length}
 						<ul class="points">
 							{#each job.points as p}<li>{p}</li>{/each}
