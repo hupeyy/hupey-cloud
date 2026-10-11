@@ -8,3 +8,4 @@ authentik/database
 authentik/data
 authentik/certs
 *.log
+mealie-data
