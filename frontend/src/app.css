@@ -114,7 +114,7 @@
 @layer base {
   @font-face {
     font-family: "jetbrains-mono";
-    src: url(fonts/JetBrainsMono-Regular.woff2) format('woff2');
+    src: url('/fonts/JetBrainsMono-Regular.woff2') format('woff2');
   }
   * {
     @apply border-border outline-ring/50;
@@ -125,7 +125,7 @@
 }
 
 * {
-  font-family: 'jebrains-mono', monospace;
+  font-family: 'jetbrains-mono', monospace;
 }
 
 /* Reduce motion for users who prefer it */
