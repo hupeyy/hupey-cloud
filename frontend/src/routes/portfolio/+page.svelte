@@ -197,19 +197,25 @@
 		</div>
 		<div class="who">
 			<h1>Alex Huper</h1>
-			<p class="role">Software engineer</p>
-			<nav class="links" aria-label="Profiles">
-				{#each links as l}
-					<a href={l.href} target={l.href.startsWith('http') ? '_blank' : undefined} rel="noopener">
-						{l.label}
-					</a>
-				{/each}
-			</nav>
+			<div class="intro panel">
+				<p class="role">Software engineer</p>
+				<nav class="links" aria-label="Profiles">
+					{#each links as l}
+						<a
+							href={l.href}
+							target={l.href.startsWith('http') ? '_blank' : undefined}
+							rel="noopener"
+						>
+							{l.label}
+						</a>
+					{/each}
+				</nav>
+			</div>
 		</div>
 	</header>
 
 	<div class="wall">
-		<section class="block" aria-labelledby="contrib-heading">
+		<section class="panel block" aria-labelledby="contrib-heading">
 			<h2 id="contrib-heading">
 				{#if data.calendar?.total != null}
 					{data.calendar.total.toLocaleString()} contributions in the last year
@@ -261,7 +267,7 @@
 			{/if}
 		</section>
 
-		<section class="block" aria-labelledby="repos-heading">
+		<section class="panel block" aria-labelledby="repos-heading">
 			<h2 id="repos-heading">Pinned repositories</h2>
 			{#if data.repos?.length}
 				<ul class="repos">
@@ -287,7 +293,7 @@
 			{/if}
 		</section>
 
-		<section class="block" aria-labelledby="exp-heading">
+		<section class="panel block" aria-labelledby="exp-heading">
 			<h2 id="exp-heading">Experience</h2>
 			<ol class="timeline">
 				{#each experience as job}
@@ -305,7 +311,7 @@
 			</ol>
 		</section>
 
-		<section class="block" aria-labelledby="skills-heading">
+		<section class="panel block" aria-labelledby="skills-heading">
 			<h2 id="skills-heading">Skills</h2>
 			<dl class="skills">
 				{#each skills as s}
@@ -391,16 +397,15 @@
 		line-height: 0.95;
 	}
 
-	.role,
-	.links {
-		text-shadow:
-			0 1px 0 rgb(74 42 82 / 0.7),
-			0 0 12px rgb(74 42 82 / 0.5);
+	.intro {
+		display: inline-block;
+		padding: 1rem 1.25rem;
+		text-shadow: 0 1px 2px rgb(40 18 50 / 0.55);
 	}
 
 	.role {
 		max-width: 32rem;
-		margin-bottom: 1.5rem;
+		margin-bottom: 0.75rem;
 		font-size: 1.05rem;
 		line-height: 1.6;
 	}
@@ -456,17 +461,20 @@
 
 	/* ---------- Sections ---------- */
 
-	/* Each section sits on a translucent grey panel that softens the dither behind it */
+	/* Translucent grey panel that softens the dither behind text */
+	.panel {
+		border: 1px solid rgb(255 255 255 / 0.08);
+		border-radius: 1px;
+		background: rgb(28 26 34 / 0.34);
+		backdrop-filter: blur(3px);
+	}
+
 	.block {
 		position: relative;
 		z-index: 1;
 		width: min(72rem, calc(100% - 2rem));
 		margin: 2rem auto 0;
 		padding: 2rem 1.25rem;
-		border: 1px solid rgb(255 255 255 / 0.08);
-		border-radius: 1px;
-		background: rgb(28 26 34 / 0.34);
-		backdrop-filter: blur(3px);
 	}
 
 	@media (min-width: 48rem) {
