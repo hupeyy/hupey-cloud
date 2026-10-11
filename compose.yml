@@ -141,6 +141,8 @@ services:
       OIDC_CLIENT_SECRET: ${MEALIE_OIDC_SECRET:?mealie client secret required}
       OIDC_PROVIDER_NAME: hupey.cloud
       OIDC_ADMIN_GROUP: authentik Admins
+      # Authentik sends email_verified=false; accounts there are admin-created, so the address is trusted
+      OIDC_REQUIRES_EMAIL_VERIFICATION: "false"
       OIDC_AUTO_REDIRECT: "true"
       OIDC_REMEMBER_ME: "true"
     # Reach auth.hupey.cloud via this host's nginx (router has no hairpin NAT)
