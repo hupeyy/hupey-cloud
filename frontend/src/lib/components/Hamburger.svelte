@@ -21,6 +21,10 @@
 		};
 		query.addEventListener('change', update);
 		mounted = true;
+
+		// Open now if the button was clicked while the page was still loading (see app.html)
+		if (window.__menuClickedEarly) isOpen = true;
+		window.__menuClickedEarly = false;
 		return () => query.removeEventListener('change', update);
 	});
 
@@ -50,6 +54,7 @@
 	<Button
 		variant="cloud"
 		onclick={toggleMenu}
+		data-menu-toggle
 		class="relative z-50"
 		aria-label="Toggle navigation menu"
 	>

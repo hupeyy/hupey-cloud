@@ -1,7 +1,9 @@
 <script>
-  import { Canvas } from '@threlte/core'
-  import Model from './Model.svelte'
   import { onMount } from 'svelte'
+
+  // three.js and threlte are ~750 KB. They're imported on demand (below) rather than
+  // at the top, so they don't hold up hydration: until they've loaded, nothing on
+  // the page, including the menu button, responds to clicks.
 
   let {
     modelURL = '/models/hupey-cloud.gltf',
@@ -18,7 +20,8 @@
 
   let isSmallScreen = $state(false);
   let isMobileDevice = $state(false);
-  let canvasLoaded = $state(false);
+  let Canvas = $state(null);
+  let Model = $state(null);
   let windowWidth = $state(0);
 
   onMount(() => {
@@ -47,9 +50,6 @@
     
     window.addEventListener('resize', handleResize);
     
-    setTimeout(() => {
-      canvasLoaded = true;
-    }, 100);
     
     // Cleanup
     return () => {
@@ -79,6 +79,17 @@
   // Determine if we should show preview image
   // Only show preview on small screens (< breakpoint), regardless of device type
   const shouldShowPreview = $derived(isSmallScreen && previewImage !== false);
+
+  // Load the 3D runtime only once the live model is actually needed
+  $effect(() => {
+    if (shouldShowPreview || Canvas) return;
+    Promise.all([import('@threlte/core'), import('./Model.svelte')])
+      .then(([threlte, model]) => {
+        Canvas = threlte.Canvas;
+        Model = model.default;
+      })
+      .catch((err) => console.error('Failed to load 3D model viewer:', err));
+  });
 </script>
 
 <div class="w-full h-full relative">
@@ -109,7 +120,7 @@
   {:else}
     <!-- Large Screen: Show 3D model -->
     <div class="w-full h-full transition-opacity duration-300">
-      {#if canvasLoaded}
+      {#if Canvas && Model}
         <Canvas>
           <Model
             {modelURL}
