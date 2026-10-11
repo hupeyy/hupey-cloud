@@ -456,12 +456,22 @@
 
 	/* ---------- Sections ---------- */
 
+	/* Each section sits on a translucent grey panel that softens the dither behind it */
 	.block {
 		position: relative;
 		z-index: 1;
-		max-width: 72rem;
-		margin: 0 auto;
-		padding: 3.5rem 1.5rem 0;
+		width: min(72rem, calc(100% - 2rem));
+		margin: 2rem auto 0;
+		padding: 2rem 1.25rem;
+		border: 1px solid rgb(255 255 255 / 0.08);
+		background: rgb(28 26 34 / 0.34);
+		backdrop-filter: blur(3px);
+	}
+
+	@media (min-width: 48rem) {
+		.block {
+			padding: 2.5rem 2rem;
+		}
 	}
 
 	h2 {
