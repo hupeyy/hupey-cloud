@@ -159,42 +159,20 @@
 		if (scroller) scroller.scrollLeft = scroller.scrollWidth;
 	});
 
-	// Hero sky: sky blue through lilac into the plum wall, dithered
-	const sky = [
-		[0, '#7fd2eb'],
-		[0.3, '#a4b1db'],
-		[0.58, '#c990cb'],
-		[0.8, '#8a5d8f'],
-		[1, '#4a2a52']
-	];
-
-	// Hairline cracks in the plaster. Seeded, so the server and browser draw the same ones.
-	function cracks() {
-		let seed = 11;
-		const rand = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
-		const paths = [];
-		const grow = (x, y, angle, steps, depth) => {
-			let d = `M${x.toFixed(1)} ${y.toFixed(1)}`;
-			for (let i = 0; i < steps; i++) {
-				angle += (rand() - 0.5) * 0.9;
-				const step = 8 + rand() * 14;
-				x += Math.cos(angle) * step;
-				y += Math.sin(angle) * step;
-				d += ` L${x.toFixed(1)} ${y.toFixed(1)}`;
-				if (depth < 2 && rand() < 0.12) {
-					const turn = (rand() < 0.5 ? -1 : 1) * (0.6 + rand() * 0.6);
-					grow(x, y, angle + turn, Math.floor(steps * 0.4), depth + 1);
-				}
-			}
-			paths.push(d);
-		};
-		grow(0, 520, 0.2, 14, 0);
-		grow(1000, 260, Math.PI - 0.4, 18, 0);
-		grow(1000, 1300, Math.PI + 0.25, 16, 0);
-		grow(0, 2050, -0.3, 15, 0);
-		return paths;
-	}
-	const crackPaths = cracks();
+	let pageHeight = $state(1);
+	let heroHeight = $state(0);
+	const sky = $derived.by(() => {
+		const h = Math.min(heroHeight / pageHeight, 0.9);
+		return [
+			[0, '#7fd2eb'],
+			[h * 0.3, '#a4b1db'],
+			[h * 0.58, '#c990cb'],
+			[h * 0.8, '#8a5d8f'],
+			[h, '#4a2a52'],
+			[h + (1 - h) * 0.5, '#3e2246'],
+			[1, '#2e1835']
+		];
+	});
 
 	const updated = (iso) =>
 		new Date(iso).toLocaleDateString('en', { month: 'short', year: 'numeric' });
@@ -204,9 +182,10 @@
 	<title>Alex Huper</title>
 </svelte:head>
 
-<main>
-	<header class="hero">
-		<DitherSky stops={sky} />
+<main bind:clientHeight={pageHeight}>
+	<DitherSky stops={sky} />
+
+	<header class="hero" bind:clientHeight={heroHeight}>
 		<div class="beams" aria-hidden="true"></div>
 		<div class="avatar">
 			<ModelViewer
@@ -232,13 +211,6 @@
 	</header>
 
 	<div class="wall">
-		<svg class="cracks" viewBox="0 0 1000 2400" preserveAspectRatio="none" aria-hidden="true">
-			{#each crackPaths as d}
-				<path {d} class="crack-light" />
-				<path {d} class="crack" />
-			{/each}
-		</svg>
-
 		<section class="block" aria-labelledby="contrib-heading">
 			<h2 id="contrib-heading">
 				{#if data.calendar?.total != null}
@@ -361,7 +333,8 @@
 		position: relative;
 		overflow: hidden;
 		min-height: 100vh;
-		background: var(--bruise);
+		/* Shown until the dithered canvas has drawn */
+		background: linear-gradient(to bottom, var(--sky), #c990cb 12%, var(--bruise) 22%, #2e1835);
 		color: var(--haze);
 	}
 
@@ -384,12 +357,6 @@
 		align-items: end;
 		gap: 1rem;
 		padding: 5rem 1.5rem 4rem;
-		background: linear-gradient(
-			to bottom,
-			var(--sky),
-			color-mix(in srgb, var(--sky) 40%, var(--bubblegum)) 60%,
-			var(--bruise)
-		);
 	}
 
 	.avatar,
@@ -476,7 +443,6 @@
 	.wall {
 		position: relative;
 		padding-bottom: 6rem;
-		background: var(--bruise);
 	}
 
 	.wall::before {
@@ -488,32 +454,6 @@
 		mix-blend-mode: soft-light;
 		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='500' height='500'%3E%3Cfilter id='p' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.018' numOctaves='6' seed='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)'/%3E%3C/svg%3E");
 		mask-image: linear-gradient(to bottom, transparent, black 10rem);
-	}
-
-	.cracks {
-		position: absolute;
-		inset: 0;
-		width: 100%;
-		height: 100%;
-		pointer-events: none;
-	}
-
-	.crack,
-	.crack-light {
-		fill: none;
-		vector-effect: non-scaling-stroke;
-		stroke-linejoin: bevel;
-		stroke-width: 1.4;
-	}
-
-	.crack {
-		stroke: rgb(20 6 26 / 0.6);
-	}
-
-	/* A lit lower lip under each crack gives it depth */
-	.crack-light {
-		stroke: rgb(255 255 255 / 0.08);
-		transform: translateY(1.5px);
 	}
 
 	/* ---------- Sections ---------- */
@@ -538,9 +478,8 @@
 		--spray: var(--sky);
 	}
 
-	/* Spray-paint overspray: a soft mist plus a speckle of droplets */
-	h2::before,
-	h2::after {
+	/* Spray-paint overspray: a soft mist of colour behind the heading */
+	h2::before {
 		content: '';
 		position: absolute;
 		z-index: -1;
@@ -550,24 +489,12 @@
 		height: 8rem;
 		translate: 0 -50%;
 		pointer-events: none;
-	}
-
-	h2::before {
 		background: radial-gradient(
 			closest-side,
 			color-mix(in srgb, var(--spray) 28%, transparent),
 			transparent
 		);
 		filter: blur(8px);
-	}
-
-	h2::after {
-		background: var(--spray);
-		opacity: 0.55;
-		mask-image:
-			url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='d'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='1' seed='5' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 14 -8.6'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23d)'/%3E%3C/svg%3E"),
-			radial-gradient(closest-side, black 25%, transparent);
-		mask-composite: intersect;
 	}
 
 	.muted {
