@@ -61,12 +61,14 @@
 				'Modernized Gourmet For Good’s CaterMatrix to Astro and HTMX, introducing custom dashboards and staff updates.',
 				'Conducted customer interviews to optimize user experience and streamlined internal workflows by 40%.'
 			]
-		},
+		}
+	];
+
+	const education = [
 		{
-			role: 'B.S. Computer Science',
-			org: 'University of Florida',
-			dates: 'Aug 2021 – Dec 2024',
-			points: []
+			degree: 'B.S. Computer Science',
+			school: 'University of Florida',
+			dates: 'Aug 2021 – Dec 2024'
 		}
 	];
 
@@ -310,6 +312,19 @@
 					</li>
 				{/each}
 			</ol>
+		</section>
+
+		<section class="panel block" aria-labelledby="edu-heading">
+			<h2 id="edu-heading">Education</h2>
+			<ul class="education">
+				{#each education as e}
+					<li>
+						<h3>{e.degree}</h3>
+						<p class="org">{e.school}</p>
+						<p class="dates">{e.dates}</p>
+					</li>
+				{/each}
+			</ul>
 		</section>
 
 		<section class="panel block" aria-labelledby="skills-heading">
@@ -651,16 +666,28 @@
 		padding-bottom: 0;
 	}
 
-	/* Square marker on the line, a pixel to match the calendar */
+	/* A little pixel cloud on the line for each role: 10x5 pixels drawn at 2px each,
+	   centred on the 2px line */
 	.timeline > li::before {
 		content: '';
 		position: absolute;
-		top: 0.3rem;
-		left: calc(-2rem - 7px);
-		width: 12px;
-		height: 12px;
-		background: var(--haze);
-		box-shadow: 0 1px 2px rgb(40 18 50 / 0.55);
+		top: 0.35rem;
+		left: calc(-2rem - 11px);
+		width: 20px;
+		height: 10px;
+		background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 5' shape-rendering='crispEdges' fill='%23eef0f6'%3E%3Cpath d='M4 0h3v1H4zM1 1h8v1H1zM0 2h10v2H0zM1 4h8v1H1z'/%3E%3C/svg%3E")
+			center / 100% 100% no-repeat;
+		image-rendering: pixelated;
+		filter: drop-shadow(0 1px 1px rgb(40 18 50 / 0.6));
+	}
+
+	.education {
+		display: grid;
+		gap: 1.5rem;
+	}
+
+	.education .dates {
+		margin: 0.25rem 0 0;
 	}
 
 	.dates {
