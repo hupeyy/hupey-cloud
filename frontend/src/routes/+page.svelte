@@ -49,9 +49,6 @@
 
 <svelte:head>
 	<title>hupey.cloud</title>
-	<link rel="preconnect" href="https://fonts.googleapis.com" />
-	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
-	<link href="https://fonts.googleapis.com/css2?family=Silkscreen&display=swap" rel="stylesheet" />
 </svelte:head>
 
 <!-- Knocks small holes out of the headline so it reads as worn print -->
@@ -112,7 +109,7 @@
 		<ul>
 			<li>
 				<span class="name">Portfolio</span>
-				<span class="what">Projects, 3D models, and my résumé</span>
+				<span class="what">GitHub activity, pinned repos, and experience</span>
 				<a href="/portfolio" class="btn btn-small">See my work</a>
 			</li>
 			{#each servers as s}
