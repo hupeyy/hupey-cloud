@@ -1,4 +1,5 @@
 <script>
+	import { onMount } from 'svelte';
 	import { slide, fly } from 'svelte/transition';
 	import Button from './ui/button/button.svelte';
 	import { signOut } from '@auth/sveltekit/client';
@@ -6,6 +7,22 @@
 	export let session = null;
 
 	let isOpen = false;
+	let mounted = false;
+	let isDesktop = false;
+
+	// Only one menu is ever rendered. slide() measures its element's height, and a
+	// menu hidden with display:none measures as NaN, so both can't sit in the DOM.
+	onMount(() => {
+		const query = matchMedia('(min-width: 768px)');
+		isDesktop = query.matches;
+		const update = (e) => {
+			isDesktop = e.matches;
+			closeMenu();
+		};
+		query.addEventListener('change', update);
+		mounted = true;
+		return () => query.removeEventListener('change', update);
+	});
 
 	function handleSignOut() {
 		closeMenu();
@@ -13,6 +30,7 @@
 	}
 
 	function toggleMenu() {
+		if (!mounted) return;
 		isOpen = !isOpen;
 	}
 
@@ -56,10 +74,10 @@
 	</Button>
 </div>
 
-{#if isOpen}
+{#if isOpen && !isDesktop}
 	<!-- Mobile Dropdown Menu - Slides down -->
 	<nav
-		class="fixed left-0 right-0 top-0 z-40 overflow-hidden bg-white pt-20 text-[var(--pink)] shadow-lg md:hidden"
+		class="fixed left-0 right-0 top-0 z-40 overflow-hidden bg-white pt-20 text-[var(--pink)] shadow-lg"
 		transition:slide={{ duration: 300 }}
 	>
 		<div class="block border-b border-gray-200 px-6 py-4">
@@ -98,9 +116,9 @@
 			{/if}
 		</div>
 	</nav>
-
+{:else if isOpen}
 	<!-- Desktop Sidebar with Backdrop -->
-	<div class="hidden md:block">
+	<div>
 		<!-- Backdrop for desktop -->
 		<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
 		<div class="fixed inset-0 z-40 bg-black/50" on:click={handleBackdropClick}></div>
