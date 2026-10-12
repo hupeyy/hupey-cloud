@@ -13,6 +13,11 @@ RUN npm prune --omit=dev
 # Run the application
 FROM node:20-alpine
 WORKDIR /app
+# yt-dlp reads Instagram and TikTok captions for the recipe importer.
+# Unpinned on purpose: the sites change often and old versions stop working.
+RUN apk add --no-cache python3 py3-pip \
+    && pip install --no-cache-dir --break-system-packages yt-dlp \
+    && apk del py3-pip
 COPY --from=build /app/build ./build/
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/package.json ./package.json

@@ -36,6 +36,9 @@ services:
       AUTH_AUTHENTIK_SECRET: ${AUTH_AUTHENTIK_SECRET}
       AUTH_AUTHENTIK_ISSUER: https://auth.hupey.cloud/application/o/hupey-cloud/
       DOCKER_API: http://docker-proxy:2375
+      # Recipe importer writes to Mealie as the token's user
+      MEALIE_API: http://mealie:9000
+      MEALIE_API_TOKEN: ${MEALIE_API_TOKEN}
     # Reach auth.hupey.cloud via this host's nginx (router has no hairpin NAT)
     extra_hosts:
       - "auth.hupey.cloud:host-gateway"

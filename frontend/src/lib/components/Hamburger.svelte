@@ -82,7 +82,7 @@
 {#if isOpen && !isDesktop}
 	<!-- Mobile Dropdown Menu - Slides down -->
 	<nav
-		class="fixed left-0 right-0 top-0 z-40 overflow-hidden bg-white pt-20 text-[var(--pink)] shadow-lg"
+		class="fixed top-0 right-0 left-0 z-40 overflow-hidden bg-white pt-20 text-[var(--pink)] shadow-lg"
 		transition:slide={{ duration: 300 }}
 	>
 		<div class="block border-b border-gray-200 px-6 py-4">
@@ -107,6 +107,11 @@
 						class="block px-6 py-4 transition-colors hover:bg-gray-100"
 						on:click={closeMenu}>Containers</a
 					>
+					<a
+						href="/recipes/import"
+						class="block px-6 py-4 transition-colors hover:bg-gray-100"
+						on:click={closeMenu}>Import recipe</a
+					>
 				{/if}
 				<button
 					class="block w-full px-6 py-4 text-left transition-colors hover:bg-gray-100"
@@ -130,7 +135,7 @@
 
 		<!-- Menu Panel - Slides in from right -->
 		<div
-			class="fixed right-0 top-0 z-40 h-full w-80 bg-white text-[var(--pink)] shadow-2xl"
+			class="fixed top-0 right-0 z-40 h-full w-80 bg-white text-[var(--pink)] shadow-2xl"
 			transition:fly={{ x: 320, duration: 300 }}
 		>
 			<!-- Menu Header -->
@@ -169,6 +174,13 @@
 							on:click={closeMenu}
 						>
 							Containers
+						</a>
+						<a
+							href="/recipes/import"
+							class="rounded-lg px-4 py-3 text-base transition-colors hover:bg-gray-100"
+							on:click={closeMenu}
+						>
+							Import recipe
 						</a>
 					{/if}
 					<button
