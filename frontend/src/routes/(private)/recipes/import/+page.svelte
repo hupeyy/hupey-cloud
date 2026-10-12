@@ -61,6 +61,8 @@
 				<div class="flex flex-wrap gap-3">
 					<a
 						href={saved.link}
+						target="_blank"
+						rel="noopener noreferrer"
 						class="rounded-md bg-white px-4 py-2 text-[var(--pink)] hover:bg-white/90"
 						>Open in Mealie</a
 					>
