@@ -89,11 +89,19 @@ const isQuantityLed = (line) => new RegExp(`^${QTY}(?:\\s|$)`, 'u').test(line);
  * { name, description, ingredients: [{ title, note }], steps: [{ title, text }], notes: [{ title, text }] }
  */
 export function parseCaption(text) {
-	const lines = text
-		.replace(HASHTAG, '')
-		.split('\n')
-		.map((l) => l.trim())
-		.filter(Boolean);
+	// Non-empty lines, remembering which ones follow a blank line
+	const lines = [];
+	const afterBlank = [];
+	let blank = false;
+	for (const l of text.replace(HASHTAG, '').split('\n')) {
+		if (!l.trim()) {
+			blank = true;
+			continue;
+		}
+		lines.push(l.trim());
+		afterBlank.push(blank);
+		blank = false;
+	}
 
 	const recipe = { name: '', description: '', ingredients: [], steps: [], notes: [] };
 	if (!lines.length) return recipe;
@@ -102,6 +110,7 @@ export function parseCaption(text) {
 
 	// Title: the first line up to its first sentence break or emoji; the rest of
 	// that line opens the description
+	afterBlank.shift();
 	const first = tidy(lines.shift()).replace(/^[\p{Extended_Pictographic}‍️\s]+/u, '');
 	const cut = first.match(
 		/^(.+?)(?:[!?.]+|\s*\p{Extended_Pictographic}[\p{Extended_Pictographic}‍️\s]*)(?:\s+|$)(.*)$/u
@@ -123,7 +132,12 @@ export function parseCaption(text) {
 		sectionUsed = true;
 	};
 
-	for (const raw of lines) {
+	const isItem = (raw) => BULLET.test(raw) || isQuantityLed(tidy(raw));
+	// A short unbulleted line with no quantity or full stop, like "Cream Cheese Frosting"
+	const isHeading = (raw, line) =>
+		!isItem(raw) && line.length <= 50 && line.split(' ').length <= 6 && !/[.!?,;]$/.test(line);
+
+	for (const [i, raw] of lines.entries()) {
 		const line = tidy(raw);
 		if (!line) continue;
 
@@ -153,6 +167,19 @@ export function parseCaption(text) {
 			sectionUsed = false;
 			if (mode === 'intro') mode = 'ingredients';
 			if (forThe[2]) (mode === 'steps' ? addStep : addIngredient)(forThe[2]);
+			continue;
+		}
+
+		// Other section headings: "Frosting:" on its own line, or a short title line
+		// set off by a blank line with ingredients listed under it
+		if (
+			isHeading(raw, line) &&
+			(line.endsWith(':') ||
+				(mode !== 'steps' && afterBlank[i] && i + 1 < lines.length && isItem(lines[i + 1])))
+		) {
+			section = line.replace(/\s*:$/, '');
+			sectionUsed = false;
+			if (mode === 'intro') mode = 'ingredients';
 			continue;
 		}
 
