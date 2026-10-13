@@ -6,12 +6,22 @@
 </script>
 
 <svelte:head>
-	<!-- Silkscreen: the pixel display face used for page headlines -->
-	<link rel="preconnect" href="https://fonts.googleapis.com" />
-	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
-	<link href="https://fonts.googleapis.com/css2?family=Silkscreen&display=swap" rel="stylesheet" />
+	<!-- Fetch the fonts alongside the CSS instead of after it (faces are in app.css) -->
+	<link
+		rel="preload"
+		href="/fonts/JetBrainsMono-Regular.woff2"
+		as="font"
+		type="font/woff2"
+		crossorigin="anonymous"
+	/>
+	<link
+		rel="preload"
+		href="/fonts/Silkscreen-Regular.woff2"
+		as="font"
+		type="font/woff2"
+		crossorigin="anonymous"
+	/>
 </svelte:head>
 
 <Hamburger session={data.session} />
 {@render children()}
-

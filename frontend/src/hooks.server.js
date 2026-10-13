@@ -1,6 +1,13 @@
-import { dev } from '$app/environment';
+import { building, dev } from '$app/environment';
 import { sequence } from '@sveltejs/kit/hooks';
 import { handle as authHandle } from './auth';
+import { contributions, topRepos } from '$lib/server/github.js';
+
+// Fill the GitHub cache at startup so the first portfolio visit doesn't wait on GitHub
+if (!building) {
+	contributions().catch((err) => console.error('github warm-up:', err.message));
+	topRepos().catch((err) => console.error('github warm-up:', err.message));
+}
 
 const devUser = {
 	name: 'Dev admin',

@@ -9,12 +9,16 @@ const cache = new Map();
 const RETRY = 5 * 60 * 1000;
 const TIMEOUT = 5000;
 
-// Concurrent callers share one in-flight load. A failed refresh keeps serving the
-// stale value and waits RETRY before trying GitHub again, so an outage or rate
-// limit doesn't turn every page view into fresh (slow, quota-burning) requests.
+// Stale-while-revalidate: once anything is cached, callers get it immediately and
+// an expired entry is refreshed in the background, so a page view never waits on
+// GitHub. Only the very first load (no cached value yet) is awaited. Concurrent
+// callers share one in-flight load. A failed refresh keeps the stale value and
+// waits RETRY before trying GitHub again, so an outage or rate limit doesn't turn
+// every page view into fresh (quota-burning) requests.
 function cached(key, load) {
 	const hit = cache.get(key);
-	if (hit && (hit.pending || Date.now() - hit.at < TTL)) return hit.pending ?? hit.value;
+	if (hit?.pending) return 'value' in hit ? hit.value : hit.pending;
+	if (hit && Date.now() - hit.at < TTL) return hit.value;
 	const pending = load().then(
 		(value) => {
 			cache.set(key, { at: Date.now(), value });
@@ -30,7 +34,7 @@ function cached(key, load) {
 		}
 	);
 	cache.set(key, { ...hit, pending });
-	return pending;
+	return hit ? hit.value : pending;
 }
 
 async function text(url) {

@@ -114,9 +114,19 @@
 }
 
 @layer base {
+  /* Both fonts are self-hosted and preloaded in +layout.svelte. JetBrains Mono is
+     subset to Latin plus the punctuation, fractions and arrows the site uses. */
   @font-face {
     font-family: "jetbrains-mono";
     src: url('/fonts/JetBrainsMono-Regular.woff2') format('woff2');
+    font-display: swap;
+  }
+  /* Silkscreen (SIL Open Font License, see /fonts/Silkscreen-OFL.txt): the pixel
+     display face used for page headlines */
+  @font-face {
+    font-family: "Silkscreen";
+    src: url('/fonts/Silkscreen-Regular.woff2') format('woff2');
+    font-display: swap;
   }
   * {
     @apply border-border outline-ring/50;
