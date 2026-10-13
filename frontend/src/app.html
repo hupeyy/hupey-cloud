@@ -6,12 +6,21 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		%sveltekit.head%
 		<script>
-			// The menu button is visible before the app's JavaScript has loaded. Remember a
-			// click on it so the menu opens once it can (read in Hamburger.svelte).
+			// The menu button is visible before the app's JavaScript has loaded. Until then,
+			// open and close the menu here; Hamburger.svelte takes over (and reads
+			// __menuOpen) once it mounts and sets __menuReady.
 			addEventListener(
 				'click',
 				function (e) {
-					if (e.target.closest && e.target.closest('[data-menu-toggle]')) window.__menuClickedEarly = true;
+					if (window.__menuReady || !e.target.closest) return;
+					var toggle = e.target.closest('[data-menu-toggle]');
+					if (!toggle && !e.target.closest('[data-menu-close]')) return;
+					var menu = document.getElementById('site-menu');
+					if (!menu) return;
+					window.__menuOpen = toggle ? !window.__menuOpen : false;
+					menu.setAttribute('data-open', window.__menuOpen);
+					toggle = document.querySelector('[data-menu-toggle]');
+					if (toggle) toggle.setAttribute('aria-expanded', window.__menuOpen);
 				},
 				true
 			);
