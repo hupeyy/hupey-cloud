@@ -172,6 +172,8 @@ services:
       FIRST_USER_ADMIN: "1"
       INVITE_ONLY: ${GYM_INVITE_ONLY:-1}
       ALLOW_GUEST: "0"
+      # Name-and-password sign-in next to passkeys; each profile sets its own password
+      PASSWORD_LOGIN: "1"
       # Only reachable through gym-web, which sets the real client address
       TRUST_PROXY: "1"
     volumes:
