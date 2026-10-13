@@ -11,3 +11,4 @@ authentik/data
 authentik/certs
 *.log
 mealie-data
+gym-data
